@@ -168,81 +168,81 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your inventory system</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your inventory system</p>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="stock-management" data-testid="tab-stock-management">Stock Management</TabsTrigger>
-            <TabsTrigger value="requests" data-testid="tab-requests">Requests</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview" data-testid="tab-overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="stock-management" data-testid="tab-stock-management" className="text-xs sm:text-sm">Stock Mgmt</TabsTrigger>
+            <TabsTrigger value="requests" data-testid="tab-requests" className="text-xs sm:text-sm">Requests</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground text-sm">Total Stock Items</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="stat-total-stock">
+                      <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-total-stock">
                         {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.totalStockItems || 0}
                       </p>
                     </div>
-                    <Box className="w-8 h-8 text-primary" />
+                    <Box className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground text-sm">Pending Requests</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="stat-pending-requests">
+                      <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-pending-requests">
                         {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.pendingRequests || 0}
                       </p>
                     </div>
-                    <Clock className="w-8 h-8 text-yellow-600" />
+                    <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground text-sm">Low Stock Items</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="stat-low-stock">
+                      <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-low-stock">
                         {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.lowStockItems || 0}
                       </p>
                     </div>
-                    <AlertTriangle className="w-8 h-8 text-red-600" />
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground text-sm">Total Users</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="stat-total-users">
+                      <p className="text-xl sm:text-2xl font-bold text-foreground" data-testid="stat-total-users">
                         {statsLoading ? <Skeleton className="h-8 w-16" /> : stats?.totalUsers || 0}
                       </p>
                     </div>
-                    <Users className="w-8 h-8 text-green-600" />
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Requests</CardTitle>
@@ -257,9 +257,9 @@ export default function AdminDashboard() {
                   ) : (
                     <div className="space-y-4">
                       {requests?.slice(0, 5).map((request) => (
-                        <div key={request.id} className="flex items-center justify-between py-2">
+                        <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 space-y-2 sm:space-y-0">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-muted rounded-full flex items-center justify-center shrink-0">
                               <span className="text-xs font-medium">
                                 {(request.user?.firstName?.[0] || request.user?.email?.[0] || "U").toUpperCase()}
                               </span>
@@ -326,30 +326,30 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="stock-management" className="space-y-6">
-            <div className="flex justify-between items-center">
+          <TabsContent value="stock-management" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Stock Management</h2>
-                <p className="text-muted-foreground">Add, edit, and manage your inventory</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Stock Management</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">Add, edit, and manage your inventory</p>
               </div>
-              <Button onClick={() => setAddStockModalOpen(true)} data-testid="button-add-stock">
+              <Button onClick={() => setAddStockModalOpen(true)} data-testid="button-add-stock" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                Add New Stock
+                <span className="sm:inline">Add New Stock</span>
               </Button>
             </div>
 
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[640px]">
                     <thead className="bg-muted/50">
                       <tr>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Image</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Name</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Code</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Quantity</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Status</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Actions</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Image</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Name</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Code</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Quantity</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Status</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -420,18 +420,18 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="requests" className="space-y-6">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-foreground">Request Management</h2>
-              <p className="text-muted-foreground">Review and manage stock requests</p>
+          <TabsContent value="requests" className="space-y-4 sm:space-y-6">
+            <div className="mb-4 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Request Management</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Review and manage stock requests</p>
             </div>
 
             {/* Request Filters */}
             <Card>
               <CardContent className="p-4">
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <Select value={requestFilter} onValueChange={setRequestFilter}>
-                    <SelectTrigger className="w-40" data-testid="select-request-filter">
+                    <SelectTrigger className="w-full sm:w-40" data-testid="select-request-filter">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -456,12 +456,12 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[768px]">
                     <thead className="bg-muted/50">
                       <tr>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">User</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Item</th>
-                        <th className="text-left py-3 px-4 font-medium text-foreground">Quantity</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">User</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Item</th>
+                        <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Qty</th>
                         <th className="text-left py-3 px-4 font-medium text-foreground">Date</th>
                         <th className="text-left py-3 px-4 font-medium text-foreground">Status</th>
                         <th className="text-left py-3 px-4 font-medium text-foreground">Actions</th>

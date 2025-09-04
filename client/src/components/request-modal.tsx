@@ -99,9 +99,9 @@ export function RequestModal({ open, onOpenChange, stocks, selectedStock }: Requ
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" data-testid="modal-request-stock">
+      <DialogContent className="w-[95vw] max-w-md mx-auto" data-testid="modal-request-stock">
         <DialogHeader>
-          <DialogTitle>Request Stock Item</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Request Stock Item</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>

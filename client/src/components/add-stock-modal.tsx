@@ -93,13 +93,13 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg" data-testid="modal-add-stock">
+      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[90vh] overflow-y-auto" data-testid="modal-add-stock">
         <DialogHeader>
-          <DialogTitle>Add New Stock Item</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Add New Stock Item</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -118,7 +118,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
               )}
             />
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="code"
@@ -221,7 +221,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
               )}
             />
             
-            <div className="flex space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4">
               <Button 
                 type="submit" 
                 className="flex-1" 

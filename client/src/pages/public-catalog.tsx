@@ -60,11 +60,11 @@ export default function PublicCatalog() {
       <NavigationHeader />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-chart-3 text-primary-foreground py-16">
+      <section className="bg-gradient-to-r from-primary to-chart-3 text-primary-foreground py-8 sm:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold mb-4">Stock Catalog</h1>
-          <p className="text-xl text-primary-foreground/90 mb-8">Browse available inventory and request items</p>
-          <div className="max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">Stock Catalog</h1>
+          <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/90 mb-4 sm:mb-6 lg:mb-8">Browse available inventory and request items</p>
+          <div className="max-w-sm sm:max-w-md mx-auto">
             <div className="relative">
               <Input
                 type="text"
@@ -81,16 +81,16 @@ export default function PublicCatalog() {
       </section>
 
       {/* Stock Grid */}
-      <section className="py-12">
+      <section className="py-6 sm:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 sm:mb-8 space-y-4 lg:space-y-0">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">Available Stock</h2>
-              <p className="text-muted-foreground">Browse and request inventory items</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Available Stock</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Browse and request inventory items</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-40" data-testid="select-category-filter">
+                <SelectTrigger className="w-full sm:w-40" data-testid="select-category-filter">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -106,7 +106,7 @@ export default function PublicCatalog() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="bg-card rounded-lg border border-border p-4">
                   <Skeleton className="w-full h-48 mb-4" />
@@ -117,7 +117,7 @@ export default function PublicCatalog() {
               ))}
             </div>
           ) : filteredStocks && filteredStocks.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredStocks.map((stock) => (
                 <StockCard
                   key={stock.id}
@@ -127,12 +127,12 @@ export default function PublicCatalog() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-muted-foreground" />
+            <div className="text-center py-8 sm:py-12 px-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
               </div>
-              <p className="text-xl font-semibold text-foreground mb-2">No stocks found</p>
-              <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+              <p className="text-lg sm:text-xl font-semibold text-foreground mb-2">No stocks found</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Try adjusting your search or filter criteria</p>
             </div>
           )}
         </div>

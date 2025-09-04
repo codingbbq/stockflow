@@ -47,24 +47,24 @@ export default function UserDashboard() {
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">My Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {user?.firstName || user?.email}</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-4 sm:mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground truncate">Welcome back, {user?.firstName || user?.email}</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Total Requests</p>
-                  <p className="text-2xl font-bold text-foreground" data-testid="stat-total-requests">
+                <div className="min-w-0 flex-1">
+                  <p className="text-muted-foreground text-xs sm:text-sm truncate">Total Requests</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground" data-testid="stat-total-requests">
                     {stats.total}
                   </p>
                 </div>
-                <ClipboardList className="w-8 h-8 text-primary" />
+                <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-primary shrink-0" />
               </div>
             </CardContent>
           </Card>
@@ -73,40 +73,40 @@ export default function UserDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600" data-testid="stat-pending-requests">
+                  <p className="text-muted-foreground text-xs sm:text-sm truncate">Pending</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-yellow-600" data-testid="stat-pending-requests">
                     {stats.pending}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-yellow-600 shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Approved</p>
-                  <p className="text-2xl font-bold text-green-600" data-testid="stat-approved-requests">
+                <div className="min-w-0 flex-1">
+                  <p className="text-muted-foreground text-xs sm:text-sm truncate">Approved</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" data-testid="stat-approved-requests">
                     {stats.approved}
                   </p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-green-600 shrink-0" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Denied</p>
-                  <p className="text-2xl font-bold text-red-600" data-testid="stat-denied-requests">
+                <div className="min-w-0 flex-1">
+                  <p className="text-muted-foreground text-xs sm:text-sm truncate">Denied</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600" data-testid="stat-denied-requests">
                     {stats.denied}
                   </p>
                 </div>
-                <XCircle className="w-8 h-8 text-red-600" />
+                <XCircle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-red-600 shrink-0" />
               </div>
             </CardContent>
           </Card>
@@ -126,37 +126,37 @@ export default function UserDashboard() {
               </div>
             ) : requests && requests.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[640px]">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 font-medium text-foreground">Item</th>
-                      <th className="text-left py-3 px-4 font-medium text-foreground">Quantity</th>
-                      <th className="text-left py-3 px-4 font-medium text-foreground">Date</th>
-                      <th className="text-left py-3 px-4 font-medium text-foreground">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-foreground">Notes</th>
+                      <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Item</th>
+                      <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Qty</th>
+                      <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Date</th>
+                      <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Status</th>
+                      <th className="text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm">Notes</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {requests.map((request) => (
                       <tr key={request.id} data-testid={`row-user-request-${request.id}`}>
-                        <td className="py-4 px-4">
-                          <div className="font-medium text-foreground">{request.stockId}</div>
-                          <div className="text-xs text-muted-foreground">{request.reason}</div>
+                        <td className="py-2 px-2 sm:py-4 sm:px-4">
+                          <div className="text-xs sm:text-sm font-medium text-foreground truncate">{request.stockId}</div>
+                          <div className="text-xs text-muted-foreground truncate hidden sm:block">{request.reason}</div>
                         </td>
-                        <td className="py-4 px-4 text-foreground">{request.quantity}</td>
-                        <td className="py-4 px-4 text-muted-foreground">
-                          {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : '-'}
+                        <td className="py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-foreground">{request.quantity}</td>
+                        <td className="py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-muted-foreground">
+                          {request.createdAt ? new Date(request.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) : '-'}
                         </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(request.status)}
-                            <Badge className={getStatusBadge(request.status)}>
+                        <td className="py-2 px-2 sm:py-4 sm:px-4">
+                          <div className="flex items-center space-x-1 sm:space-x-2">
+                            <div className="sm:hidden">{getStatusIcon(request.status)}</div>
+                            <Badge className={`text-xs ${getStatusBadge(request.status)}`}>
                               {request.status}
                             </Badge>
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-muted-foreground text-sm">
-                          {request.adminNotes || "-"}
+                        <td className="py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-muted-foreground">
+                          <div className="truncate max-w-[100px] sm:max-w-[200px]">{request.adminNotes || "-"}</div>
                         </td>
                       </tr>
                     ))}
