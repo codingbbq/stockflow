@@ -40,19 +40,12 @@ export default function PublicCatalog() {
   const categories = stocks ? Array.from(new Set(stocks.map(s => s.category).filter(Boolean))) : [];
 
   const handleRequestClick = (stock: Stock) => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Login Required",
-        description: "Please login to request stock items.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 1500);
-      return;
-    }
     setSelectedStock(stock);
     setRequestModalOpen(true);
+  };
+
+  const handleLoginClick = () => {
+    window.location.href = "/api/login";
   };
 
   return (
@@ -123,6 +116,8 @@ export default function PublicCatalog() {
                   key={stock.id}
                   stock={stock}
                   onRequestClick={handleRequestClick}
+                  isAuthenticated={isAuthenticated}
+                  onLoginClick={handleLoginClick}
                 />
               ))}
             </div>

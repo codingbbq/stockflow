@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Ban } from "lucide-react";
+import { ShoppingCart, Ban, LogIn } from "lucide-react";
 import type { Stock } from "@shared/schema";
 
 interface StockCardProps {
   stock: Stock;
   onRequestClick: (stock: Stock) => void;
+  isAuthenticated?: boolean;
+  onLoginClick?: () => void;
 }
 
-export function StockCard({ stock, onRequestClick }: StockCardProps) {
+export function StockCard({ stock, onRequestClick, isAuthenticated = false, onLoginClick }: StockCardProps) {
   const getStockStatus = (quantity: number) => {
     if (quantity === 0) return { label: "Out of Stock", className: "bg-red-100 text-red-800" };
     if (quantity <= 5) return { label: "Low Stock", className: "bg-yellow-100 text-yellow-800" };
@@ -49,25 +51,36 @@ export function StockCard({ stock, onRequestClick }: StockCardProps) {
           </span>
           <span className="text-muted-foreground text-sm">Available</span>
         </div>
-        <Button
-          onClick={() => onRequestClick(stock)}
-          disabled={stock.quantity === 0}
-          className="w-full"
-          variant={stock.quantity === 0 ? "secondary" : "default"}
-          data-testid={`button-request-stock-${stock.id}`}
-        >
-          {stock.quantity === 0 ? (
-            <>
-              <Ban className="w-4 h-4 mr-2" />
-              Out of Stock
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Request Item
-            </>
-          )}
-        </Button>
+        {stock.quantity === 0 ? (
+          <Button
+            disabled
+            className="w-full"
+            variant="secondary"
+            data-testid={`button-out-of-stock-${stock.id}`}
+          >
+            <Ban className="w-4 h-4 mr-2" />
+            Out of Stock
+          </Button>
+        ) : isAuthenticated ? (
+          <Button
+            onClick={() => onRequestClick(stock)}
+            className="w-full"
+            data-testid={`button-request-stock-${stock.id}`}
+          >
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            Request Item
+          </Button>
+        ) : (
+          <Button
+            onClick={onLoginClick}
+            className="w-full"
+            variant="outline"
+            data-testid={`button-login-to-request-${stock.id}`}
+          >
+            <LogIn className="w-4 h-4 mr-2" />
+            Login to Request
+          </Button>
+        )}
       </div>
     </div>
   );
