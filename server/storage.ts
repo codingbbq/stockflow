@@ -4,14 +4,16 @@ import {
   stockRequests,
   stockHistory,
   type User,
-  type UpsertUser,
   type Stock,
   type InsertStock,
   type StockRequest,
   type InsertStockRequest,
   type StockHistory,
   type InsertStockHistory,
+  upsertUserSchema,
+  type UpsertUser,
 } from "@shared/schema";
+import { z } from "zod";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 
@@ -87,7 +89,7 @@ export class DatabaseStorage implements IStorage {
     await this.createStockHistory({
       stockId: newStock.id,
       changeType: "added",
-      quantity: stock.quantity,
+      quantity: stock.quantity || 0,
       notes: "Initial stock creation",
     });
     
@@ -268,5 +270,4 @@ export class DatabaseStorage implements IStorage {
 
 export const storage = new DatabaseStorage();
 
-export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export { type User, type Stock, type StockRequest, type StockHistory };

@@ -17,21 +17,21 @@ interface StockDetailModalProps {
 }
 
 export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModalProps) {
-  const { data: history, isLoading: historyLoading } = useQuery({
+  const { data: history, isLoading: historyLoading } = useQuery<StockHistory[]>({
     queryKey: ["/api/admin/stocks", stock?.id, "history"],
     enabled: open && !!stock?.id,
   });
 
-  const { data: requests, isLoading: requestsLoading } = useQuery({
+  const { data: requests, isLoading: requestsLoading } = useQuery<StockRequest[]>({
     queryKey: ["/api/admin/stocks", stock?.id, "requests"],
     enabled: open && !!stock?.id,
   });
 
   if (!stock) return null;
 
-  const pendingRequests = requests?.filter((r: any) => r.status === "pending")?.length || 0;
-  const totalAllocated = requests?.filter((r: any) => r.status === "approved")
-    ?.reduce((sum: number, r: any) => sum + r.quantity, 0) || 0;
+  const pendingRequests = requests?.filter(r => r.status === "pending")?.length || 0;
+  const totalAllocated = requests?.filter(r => r.status === "approved")
+    ?.reduce((sum, r) => sum + r.quantity, 0) || 0;
 
   const getActivityIcon = (changeType: string) => {
     switch (changeType) {
@@ -116,7 +116,7 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
                   ))}
                 </div>
               ) : (
-                history?.slice(0, 10).map((item: any) => (
+                history?.slice(0, 10).map((item) => (
                   <div 
                     key={item.id} 
                     className={`flex items-start space-x-3 p-3 rounded-lg ${getActivityBgColor(item.changeType)}`}
@@ -132,8 +132,8 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
                         {item.changeType === "removed" && "Stock Removed"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {item.user && `${item.user.firstName || item.user.email} • `}
-                        {Math.abs(item.quantity)} units • {new Date(item.createdAt).toLocaleDateString()}
+                        {(item as any).user && `${(item as any).user.firstName || (item as any).user.email} • `}
+                        {Math.abs(item.quantity)} units • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Unknown date'}
                       </p>
                     </div>
                   </div>
@@ -162,14 +162,14 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {requests?.map((request: any) => (
+                  {requests?.map((request) => (
                     <tr key={request.id} data-testid={`row-request-${request.id}`}>
                       <td className="py-2 px-4 text-sm text-foreground">
-                        {request.user?.firstName || request.user?.email || "Unknown"}
+                        {(request as any).user?.firstName || (request as any).user?.email || "Unknown"}
                       </td>
                       <td className="py-2 px-4 text-sm text-foreground">{request.quantity}</td>
                       <td className="py-2 px-4 text-sm text-muted-foreground">
-                        {new Date(request.createdAt).toLocaleDateString()}
+                        {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Unknown date'}
                       </td>
                       <td className="py-2 px-4">
                         <Badge 

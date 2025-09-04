@@ -46,11 +46,16 @@ export default function AdminDashboard() {
     queryKey: ["/api/stocks"],
   });
 
-  const { data: requests, isLoading: requestsLoading } = useQuery<StockRequest[]>({
+  const { data: requests, isLoading: requestsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/requests"],
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<{
+    totalStockItems: number;
+    pendingRequests: number;
+    lowStockItems: number;
+    totalUsers: number;
+  }>({
     queryKey: ["/api/admin/dashboard/stats"],
   });
 
@@ -251,7 +256,7 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {requests?.slice(0, 5).map((request: any) => (
+                      {requests?.slice(0, 5).map((request) => (
                         <div key={request.id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
@@ -261,10 +266,10 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-foreground">
-                                {request.user?.firstName || request.user?.email || "Unknown"}
+                                {(request as any).user?.firstName || (request as any).user?.email || "Unknown"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {request.stock?.name} ({request.quantity} qty)
+                                {(request as any).stock?.name} ({request.quantity} qty)
                               </p>
                             </div>
                           </div>
@@ -474,21 +479,21 @@ export default function AdminDashboard() {
                           </tr>
                         ))
                       ) : (
-                        filteredRequests?.map((request: any) => (
+                        filteredRequests?.map((request) => (
                           <tr key={request.id} data-testid={`row-request-${request.id}`}>
                             <td className="py-4 px-4">
                               <div className="flex items-center space-x-3">
                                 <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                                   <span className="text-xs font-medium">
-                                    {(request.user?.firstName?.[0] || request.user?.email?.[0] || "U").toUpperCase()}
+                                    {((request as any).user?.firstName?.[0] || (request as any).user?.email?.[0] || "U").toUpperCase()}
                                   </span>
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground">
-                                    {request.user?.firstName || request.user?.email || "Unknown"}
+                                    {(request as any).user?.firstName || (request as any).user?.email || "Unknown"}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {request.user?.email}
+                                    {(request as any).user?.email}
                                   </p>
                                 </div>
                               </div>
@@ -496,19 +501,19 @@ export default function AdminDashboard() {
                             <td className="py-4 px-4">
                               <div className="flex items-center space-x-3">
                                 <img
-                                  src={request.stock?.imageUrl || "https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100"}
-                                  alt={request.stock?.name}
+                                  src={(request as any).stock?.imageUrl || "https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100"}
+                                  alt={(request as any).stock?.name}
                                   className="w-10 h-10 object-cover rounded"
                                 />
                                 <div>
-                                  <p className="font-medium text-foreground">{request.stock?.name}</p>
-                                  <p className="text-xs text-muted-foreground">{request.stock?.code}</p>
+                                  <p className="font-medium text-foreground">{(request as any).stock?.name}</p>
+                                  <p className="text-xs text-muted-foreground">{(request as any).stock?.code}</p>
                                 </div>
                               </div>
                             </td>
                             <td className="py-4 px-4 text-foreground">{request.quantity}</td>
                             <td className="py-4 px-4 text-muted-foreground">
-                              {new Date(request.createdAt).toLocaleDateString()}
+                              {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Unknown date'}
                             </td>
                             <td className="py-4 px-4">
                               <Badge className={

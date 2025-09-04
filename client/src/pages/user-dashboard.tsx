@@ -145,7 +145,7 @@ export default function UserDashboard() {
                         </td>
                         <td className="py-4 px-4 text-foreground">{request.quantity}</td>
                         <td className="py-4 px-4 text-muted-foreground">
-                          {new Date(request.createdAt).toLocaleDateString()}
+                          {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : '-'}
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-2">

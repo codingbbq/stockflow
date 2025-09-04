@@ -135,6 +135,9 @@ export const insertStockSchema = createInsertSchema(stocks).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  imageUrl: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
 });
 
 export const insertStockRequestSchema = createInsertSchema(stockRequests).omit({

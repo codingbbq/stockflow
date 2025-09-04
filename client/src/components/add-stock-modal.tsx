@@ -164,7 +164,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger data-testid="select-stock-category">
                         <SelectValue placeholder="Select category" />
@@ -192,6 +192,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
                     <Input
                       placeholder="Enter image URL"
                       {...field}
+                      value={field.value || ""}
                       data-testid="input-stock-image-url"
                     />
                   </FormControl>
@@ -211,6 +212,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
                       rows={3}
                       placeholder="Enter item description..."
                       {...field}
+                      value={field.value || ""}
                       data-testid="textarea-stock-description"
                     />
                   </FormControl>
