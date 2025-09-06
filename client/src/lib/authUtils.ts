@@ -1,3 +1,4 @@
-export function isUnauthorizedError(error: Error): boolean {
-  return /^401: .*Unauthorized/.test(error.message);
+
+export function isUnauthorizedError(error: any): boolean {
+  return error?.message?.includes('401') || error?.status === 401;
 }

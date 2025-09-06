@@ -1,26 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertStockSchema, insertStockRequestSchema, insertStockHistorySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Public stock routes
   app.get("/api/stocks", async (req, res) => {
     try {
@@ -45,13 +29,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Protected user routes
-  app.post("/api/requests", isAuthenticated, async (req: any, res) => {
+  // Stock management routes (now public)
+  app.post("/api/stocks", async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const stockData = insertStockSchema.parse(req.body);
+      const stock = await storage.createStock(stockData);
+      res.json(stock);
+    } catch (error) {
+      console.error("Error creating stock:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid stock data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create stock" });
+    }
+  });
+
+  app.put("/api/stocks/:id", async (req, res) => {
+    try {
+      const stockData = insertStockSchema.partial().parse(req.body);
+      const stock = await storage.updateStock(req.params.id, stockData);
+      res.json(stock);
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      res.status(500).json({ message: "Failed to update stock" });
+    }
+  });
+
+  app.delete("/api/stocks/:id", async (req, res) => {
+    try {
+      await storage.deleteStock(req.params.id);
+      res.json({ message: "Stock deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting stock:", error);
+      res.status(500).json({ message: "Failed to delete stock" });
+    }
+  });
+
+  // Stock request routes (now public)
+  app.post("/api/requests", async (req, res) => {
+    try {
       const requestData = insertStockRequestSchema.parse({
         ...req.body,
-        userId,
+        userId: req.body.userId || "anonymous", // Allow anonymous requests
       });
 
       // Check if stock exists and has enough quantity
@@ -75,67 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/requests/user", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const requests = await storage.getStockRequestsByUser(userId);
-      res.json(requests);
-    } catch (error) {
-      console.error("Error fetching user requests:", error);
-      res.status(500).json({ message: "Failed to fetch requests" });
-    }
-  });
-
-  // Admin routes
-  const isAdmin = async (req: any, res: any, next: any) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      if (!user || !user.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-      next();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to verify admin access" });
-    }
-  };
-
-  app.post("/api/admin/stocks", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const stockData = insertStockSchema.parse(req.body);
-      const stock = await storage.createStock(stockData);
-      res.json(stock);
-    } catch (error) {
-      console.error("Error creating stock:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid stock data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to create stock" });
-    }
-  });
-
-  app.put("/api/admin/stocks/:id", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const stockData = insertStockSchema.partial().parse(req.body);
-      const stock = await storage.updateStock(req.params.id, stockData);
-      res.json(stock);
-    } catch (error) {
-      console.error("Error updating stock:", error);
-      res.status(500).json({ message: "Failed to update stock" });
-    }
-  });
-
-  app.delete("/api/admin/stocks/:id", isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      await storage.deleteStock(req.params.id);
-      res.json({ message: "Stock deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting stock:", error);
-      res.status(500).json({ message: "Failed to delete stock" });
-    }
-  });
-
-  app.get("/api/admin/requests", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/requests", async (req, res) => {
     try {
       const requests = await storage.getStockRequests();
       res.json(requests);
@@ -145,11 +104,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/requests/:id/approve", isAuthenticated, isAdmin, async (req: any, res) => {
+  app.get("/api/requests/user/:userId", async (req, res) => {
+    try {
+      const requests = await storage.getStockRequestsByUser(req.params.userId);
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching user requests:", error);
+      res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+
+  app.put("/api/requests/:id/approve", async (req, res) => {
     try {
       const { adminNotes } = req.body;
       const requestId = req.params.id;
-      const adminId = req.user.claims.sub;
+      const adminId = "admin"; // Default admin ID
 
       // Get the request details
       const requests = await storage.getStockRequests();
@@ -191,11 +160,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/requests/:id/deny", isAuthenticated, isAdmin, async (req: any, res) => {
+  app.put("/api/requests/:id/deny", async (req, res) => {
     try {
       const { adminNotes } = req.body;
       const requestId = req.params.id;
-      const adminId = req.user.claims.sub;
+      const adminId = "admin"; // Default admin ID
 
       const updatedRequest = await storage.updateRequestStatus(requestId, "denied", adminNotes, adminId);
       res.json(updatedRequest);
@@ -205,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/stocks/:id/history", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/stocks/:id/history", async (req, res) => {
     try {
       const history = await storage.getStockHistory(req.params.id);
       res.json(history);
@@ -215,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/stocks/:id/requests", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/stocks/:id/requests", async (req, res) => {
     try {
       const requests = await storage.getStockRequestsByStock(req.params.id);
       res.json(requests);
@@ -225,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/dashboard/stats", isAuthenticated, isAdmin, async (req, res) => {
+  app.get("/api/dashboard/stats", async (req, res) => {
     try {
       const stats = await storage.getDashboardStats();
       res.json(stats);
