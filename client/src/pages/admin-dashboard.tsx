@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { NavigationHeader } from "@/components/navigation-header";
 import { AddStockModal } from "@/components/add-stock-modal";
 import { StockDetailModal } from "@/components/stock-detail-modal";
@@ -32,8 +33,10 @@ import {
   X,
 } from "lucide-react";
 import type { Stock, StockRequest } from "@shared/schema";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminDashboard() {
+  const { isAuthenticated, profile, loading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [addStockModalOpen, setAddStockModalOpen] = useState(false);
@@ -42,12 +45,15 @@ export default function AdminDashboard() {
   const [requestFilter, setRequestFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // All hooks must be called before any conditional returns
   const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
     queryKey: ["/api/stocks"],
+    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
   });
 
   const { data: requests, isLoading: requestsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/requests"],
+    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
   });
 
   const { data: stats, isLoading: statsLoading } = useQuery<{
@@ -57,7 +63,25 @@ export default function AdminDashboard() {
     totalUsers: number;
   }>({
     queryKey: ["/api/admin/dashboard/stats"],
+    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
   });
+
+  const { data: users, isLoading: usersLoading } = useQuery({
+    queryKey: ["/api/admin/users"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
+  });
+
+  // Redirect if not authenticated or not admin
+  useEffect(() => {
+    if (!loading && (!isAuthenticated || !profile?.is_admin)) {
+      window.location.href = "/login";
+    }
+  }, [isAuthenticated, profile, loading]);
 
   const approveMutation = useMutation({
     mutationFn: async ({ id, adminNotes }: { id: string; adminNotes?: string }) => {
@@ -123,6 +147,31 @@ export default function AdminDashboard() {
     },
   });
 
+  const toggleAdminMutation = useMutation({
+    mutationFn: async ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_admin: isAdmin })
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "User updated",
+        description: "User admin status has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error", 
+        description: error.message || "Failed to update user admin status",
+        variant: "destructive",
+      });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       await apiRequest("DELETE", `/api/admin/stocks/${id}`);
@@ -164,6 +213,33 @@ export default function AdminDashboard() {
     return matchesFilter && matchesSearch;
   });
 
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show unauthorized message if not admin
+  if (!isAuthenticated || !profile?.is_admin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-4">You don't have permission to access this page.</p>
+          <Button onClick={() => window.location.href = "/"}>
+            Go to Homepage
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <NavigationHeader />
@@ -175,10 +251,11 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
             <TabsTrigger value="overview" data-testid="tab-overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="stock-management" data-testid="tab-stock-management" className="text-xs sm:text-sm">Stock Mgmt</TabsTrigger>
             <TabsTrigger value="requests" data-testid="tab-requests" className="text-xs sm:text-sm">Requests</TabsTrigger>
+            <TabsTrigger value="users" data-testid="tab-users" className="text-xs sm:text-sm">Users</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 sm:space-y-6">
@@ -557,6 +634,107 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-4 sm:space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Users Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-medium">User</th>
+                        <th className="text-left py-3 px-4 font-medium">Email</th>
+                        <th className="text-left py-3 px-4 font-medium">Joined</th>
+                        <th className="text-left py-3 px-4 font-medium">Admin</th>
+                        <th className="text-left py-3 px-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usersLoading ? (
+                        [...Array(5)].map((_, i) => (
+                          <tr key={i} className="border-b">
+                            <td className="py-4 px-4">
+                              <Skeleton className="h-10 w-full" />
+                            </td>
+                            <td className="py-4 px-4">
+                              <Skeleton className="h-6 w-32" />
+                            </td>
+                            <td className="py-4 px-4">
+                              <Skeleton className="h-6 w-20" />
+                            </td>
+                            <td className="py-4 px-4">
+                              <Skeleton className="h-6 w-16" />
+                            </td>
+                            <td className="py-4 px-4">
+                              <Skeleton className="h-8 w-24" />
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        users?.map((user: any) => (
+                          <tr key={user.id} className="border-b hover:bg-muted/50">
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                  <span className="text-xs font-medium text-primary-foreground">
+                                    {(user.first_name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground" data-testid={`user-name-${user.id}`}>
+                                    {user.first_name && user.last_name
+                                      ? `${user.first_name} ${user.last_name}`
+                                      : user.first_name || "Unknown User"}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-muted-foreground" data-testid={`user-email-${user.id}`}>
+                              {user.email}
+                            </td>
+                            <td className="py-4 px-4 text-muted-foreground">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="py-4 px-4">
+                              <Badge className={user.is_admin ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                                {user.is_admin ? "Admin" : "User"}
+                              </Badge>
+                            </td>
+                            <td className="py-4 px-4">
+                              <Button
+                                size="sm"
+                                variant={user.is_admin ? "destructive" : "default"}
+                                onClick={() => toggleAdminMutation.mutate({ 
+                                  id: user.id, 
+                                  isAdmin: !user.is_admin 
+                                })}
+                                disabled={toggleAdminMutation.isPending}
+                                data-testid={`button-toggle-admin-${user.id}`}
+                              >
+                                {user.is_admin ? "Remove Admin" : "Make Admin"}
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                  {users && users.length === 0 && !usersLoading && (
+                    <div className="text-center py-8">
+                      <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+                      <h3 className="mt-2 text-sm font-medium text-foreground">No users found</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Users will appear here once they sign up.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

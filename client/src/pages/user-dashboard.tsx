@@ -8,11 +8,30 @@ import { ClipboardList, Clock, CheckCircle, XCircle } from "lucide-react";
 import type { StockRequest } from "@shared/schema";
 
 export default function UserDashboard() {
-  const { user } = useAuth();
+  const { isAuthenticated, profile, loading } = useAuth();
 
   const { data: requests, isLoading } = useQuery<StockRequest[]>({
     queryKey: ["/api/requests/user"],
+    enabled: isAuthenticated, // Only fetch if authenticated
   });
+
+  // Redirect if not authenticated
+  if (!loading && !isAuthenticated) {
+    window.location.href = "/login";
+    return null;
+  }
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -50,7 +69,7 @@ export default function UserDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-4 sm:mb-6 lg:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Dashboard</h1>
-          <p className="text-sm sm:text-base text-muted-foreground truncate">Welcome back, {user?.firstName || user?.email}</p>
+          <p className="text-sm sm:text-base text-muted-foreground truncate">Welcome back, {profile?.first_name || profile?.email}</p>
         </div>
 
         {/* Stats Cards */}
