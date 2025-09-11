@@ -33,7 +33,6 @@ import {
   X,
 } from "lucide-react";
 import type { Stock, StockRequest } from "@shared/schema";
-import { supabase } from "@/lib/supabase";
 
 export default function AdminDashboard() {
   const { isAuthenticated, profile, loading } = useAuth();
@@ -68,11 +67,6 @@ export default function AdminDashboard() {
 
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ["/api/admin/users"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      return data;
-    },
     enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
   });
 
@@ -149,12 +143,7 @@ export default function AdminDashboard() {
 
   const toggleAdminMutation = useMutation({
     mutationFn: async ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_admin: isAdmin })
-        .eq('id', id);
-      
-      if (error) throw error;
+      await apiRequest("PUT", `/api/admin/users/${id}/toggle-admin`, { isAdmin });
     },
     onSuccess: () => {
       toast({
@@ -164,6 +153,17 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
     onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Error", 
         description: error.message || "Failed to update user admin status",
