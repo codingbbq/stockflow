@@ -43,6 +43,7 @@ export const authenticateToken = async (
 	res: Response,
 	next: NextFunction
 ) => {
+  console.log('Debug: authenticateToken middleware called for', req.method, req.originalUrl);
 	if (!supabase) {
 		console.error('Supabase not configured properly');
 		return res.status(500).json({ message: 'Authentication service not available' });
@@ -103,6 +104,7 @@ export const authenticateToken = async (
 
 // Middleware to check if user is admin
 export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+	console.log('Debug: requireAdmin middleware called for', req.method, req.originalUrl, 'user:', req.user?.id, 'isAdmin:', req.user?.is_admin);
 	if (!req.user) {
 		return res.status(401).json({ message: 'Authentication required' });
 	}

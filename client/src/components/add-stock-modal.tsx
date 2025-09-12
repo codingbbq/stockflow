@@ -55,14 +55,14 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertStock) => {
-      await apiRequest("POST", "/api/admin/stocks", data);
+      return await apiRequest("POST", "/api/admin/stocks", data);
     },
     onSuccess: () => {
       toast({
         title: "Stock added",
         description: "New stock item has been added successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stocks"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/dashboard/stats"] });
       onOpenChange(false);
       form.reset();

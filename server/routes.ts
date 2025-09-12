@@ -194,11 +194,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 	// Admin-only stock management routes
 	app.post(
-		'/api/stocks',
+		'/api/admin/stocks',
 		authenticateToken,
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {
 			try {
+        console.log('Debug: Received request to create stock with body:', req.body);
 				const stockData = insertStockSchema.parse(req.body);
 				const stock = await storage.createStock(stockData);
 				res.json(stock);
