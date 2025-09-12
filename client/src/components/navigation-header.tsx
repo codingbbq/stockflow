@@ -10,8 +10,11 @@ export function NavigationHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await signOut();
+    const { error } = await signOut();
     setMobileMenuOpen(false);
+    if(!error) {
+      window.location.href = "/login";
+    }
   };
 
   const handleLogin = () => {
