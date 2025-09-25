@@ -9,6 +9,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import UserDashboard from "@/pages/user-dashboard";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Toaster />
         <Router />
       </TooltipProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

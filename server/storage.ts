@@ -16,6 +16,7 @@ import {
 import { z } from "zod";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
+import { StockRequestWithStock } from "@shared/types/StockRequestWithStock";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -33,7 +34,7 @@ export interface IStorage {
   // Stock request operations
   createStockRequest(request: InsertStockRequest): Promise<StockRequest>;
   getStockRequests(): Promise<StockRequest[]>;
-  getStockRequestsByUser(userId: string): Promise<StockRequest[]>;
+  getStockRequestsByUser(userId: string): Promise<StockRequestWithStock[]>;
   getStockRequestsByStock(stockId: string): Promise<StockRequest[]>;
   updateRequestStatus(id: string, status: string, adminNotes?: string, approvedBy?: string): Promise<StockRequest>;
   
@@ -156,10 +157,27 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(stockRequests.createdAt));
   }
 
-  async getStockRequestsByUser(userId: string): Promise<StockRequest[]> {
+  // User with stocks associated to them
+  async getStockRequestsByUser(userId: string): Promise<StockRequestWithStock[]> {
     return await db
-      .select()
+      .select({
+        id: stockRequests.id,
+        userId: stockRequests.userId,
+        stockId: stockRequests.stockId,
+        quantity: stockRequests.quantity,
+        reason: stockRequests.reason,
+        status: stockRequests.status,
+        adminNotes: stockRequests.adminNotes,
+        createdAt: stockRequests.createdAt,
+        updatedAt: stockRequests.updatedAt,
+        stock: {
+            name: stocks.name,
+            code: stocks.code,
+            imageUrl: stocks.imageUrl,
+        },
+      })
       .from(stockRequests)
+      .leftJoin(stocks, eq(stockRequests.stockId, stocks.id))
       .where(eq(stockRequests.userId, userId))
       .orderBy(desc(stockRequests.createdAt));
   }

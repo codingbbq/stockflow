@@ -303,7 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			if (!req.user) {
 				return res.status(401).json({ message: 'Authentication required' });
 			}
-
+			console.log("Debug : Calling Get Stock Request By User");
 			const requests = await storage.getStockRequestsByUser(req.user.id);
 			res.json(requests);
 		} catch (error) {
