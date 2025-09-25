@@ -18,12 +18,12 @@ interface StockDetailModalProps {
 
 export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModalProps) {
   const { data: history, isLoading: historyLoading } = useQuery<StockHistory[]>({
-    queryKey: ["/api/admin/stocks", stock?.id, "history"],
+    queryKey: ["/api/stocks", stock?.id, "history"],
     enabled: open && !!stock?.id,
   });
 
   const { data: requests, isLoading: requestsLoading } = useQuery<StockRequest[]>({
-    queryKey: ["/api/admin/stocks", stock?.id, "requests"],
+    queryKey: ["/api/stocks", stock?.id, "requests"],
     enabled: open && !!stock?.id,
   });
 

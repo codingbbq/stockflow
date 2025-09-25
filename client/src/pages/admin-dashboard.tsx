@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { NavigationHeader } from "@/components/navigation-header";
 import { AddStockModal } from "@/components/add-stock-modal";
+import { AddUserModal } from "@/components/add-user-modal";
 import { StockDetailModal } from "@/components/stock-detail-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const [addStockModalOpen, setAddStockModalOpen] = useState(false);
   const [stockDetailModalOpen, setStockDetailModalOpen] = useState(false);
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
   const [requestFilter, setRequestFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -640,10 +642,19 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4 sm:space-y-6">
+
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Users Management</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">Add, edit, and manage your users</p>
+              </div>
+              <Button onClick={() => setAddUserModalOpen(true)} data-testid="button-add-user" className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="sm:inline">Add New User</span>
+              </Button>
+            </div>
+
             <Card>
-              <CardHeader>
-                <CardTitle>Users Management</CardTitle>
-              </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -751,6 +762,11 @@ export default function AdminDashboard() {
         open={stockDetailModalOpen}
         onOpenChange={setStockDetailModalOpen}
         stock={selectedStock}
+      />
+
+      <AddUserModal
+        open={addUserModalOpen}
+        onOpenChange={setAddUserModalOpen}
       />
     </div>
   );
