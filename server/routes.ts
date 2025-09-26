@@ -7,70 +7,22 @@ import {
 	insertStockHistorySchema,
 } from '@shared/schema';
 import { z } from 'zod';
-import {
-	authenticateToken,
-	requireAdmin,
-	optionalAuth,
-	type AuthenticatedRequest,
-	supabaseAdmin,
-} from './auth';
+import { authenticateToken, requireAdmin, type AuthenticatedRequest, supabaseAdmin } from './auth';
 
 export async function registerRoutes(app: Express): Promise<Server> {
 	// Authentication routes
 	app.post('/api/auth/signin', async (req, res) => {
 		try {
 			const { email, password } = req.body;
-
-			if (!supabaseAdmin) {
-				return res.status(500).json({ message: 'Authentication service not available' });
-			}
-
-			const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-				email,
-				password,
-			});
+			const { access_token, user, error } = await storage.signInWithPassword(email, password);
 
 			if (error) {
 				return res.status(401).json({ message: error.message });
 			}
 
-			if (data.user) {
-				// Get or create user profile
-				let { data: profile, error: profileError } = await supabaseAdmin
-					.from('profiles')
-					.select('*')
-					.eq('id', data.user.id)
-					.single();
-
-				if (profileError && profileError.code === 'PGRST116') {
-					// Profile doesn't exist, create it
-					const newProfile = {
-						id: data.user.id,
-						email: data.user.email || '',
-						first_name: data.user.user_metadata?.first_name || '',
-						last_name: data.user.user_metadata?.last_name || '',
-						is_admin: false,
-					};
-
-					const { data: createdProfile, error: createError } = await supabaseAdmin
-						.from('profiles')
-						.insert(newProfile)
-						.select()
-						.single();
-
-					if (createError) {
-						console.error('Error creating profile:', createError);
-						return res.status(500).json({ message: 'Failed to create user profile' });
-					}
-
-					profile = createdProfile;
-				} else if (profileError) {
-					console.error('Error fetching profile:', profileError);
-					return res.status(500).json({ message: 'Failed to fetch user profile' });
-				}
-
+			if (access_token) {
 				// Set session cookie (you'd implement proper session management here)
-				res.cookie('auth_token', data.session.access_token, {
+				res.cookie('auth_token', access_token, {
 					httpOnly: true,
 					secure: process.env.NODE_ENV === 'production',
 					sameSite: 'strict',
@@ -78,8 +30,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				});
 
 				res.json({
-					user: data.user,
-					profile: profile,
+					access_token,
+					user,
+					error,
 				});
 			}
 		} catch (error) {
@@ -91,27 +44,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 	app.post('/api/auth/signup', async (req, res) => {
 		try {
 			const { email, password, firstName, lastName } = req.body;
-
-			if (!supabaseAdmin) {
-				return res.status(500).json({ message: 'Authentication service not available' });
-			}
-
-			const { data, error } = await supabaseAdmin.auth.signUp({
+			const { user, error } = await storage.newUserSignUp({
 				email,
 				password,
-				options: {
-					data: {
-						first_name: firstName,
-						last_name: lastName,
-					},
-				},
+				firstName,
+				lastName
 			});
-
 			if (error) {
 				return res.status(400).json({ message: error.message });
 			}
-
-			res.json({ message: 'Signup successful. Please check your email for verification.' });
+			res.json({ message: 'Signup successful. Your account will be activated by Admin' });
 		} catch (error) {
 			console.error('Signup error:', error);
 			res.status(500).json({ message: 'Internal server error' });
@@ -146,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			}
 
 			const { data: profile, error: profileError } = await supabaseAdmin
-				.from('profiles')
+				.from('users')
 				.select('*')
 				.eq('id', user.id)
 				.single();
@@ -199,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {
 			try {
-        console.log('Debug: Received request to create stock with body:', req.body);
+				console.log('Debug: Received request to create stock with body:', req.body);
 				const stockData = insertStockSchema.parse(req.body);
 				const stock = await storage.createStock(stockData);
 				res.json(stock);
@@ -303,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			if (!req.user) {
 				return res.status(401).json({ message: 'Authentication required' });
 			}
-			console.log("Debug : Calling Get Stock Request By User");
+			console.log('Debug : Calling Get Stock Request By User');
 			const requests = await storage.getStockRequestsByUser(req.user.id);
 			res.json(requests);
 		} catch (error) {
@@ -487,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				}
 
 				const { data: users, error } = await supabaseAdmin
-					.from('profiles')
+					.from('users')
 					.select('*')
 					.order('created_at', { ascending: false });
 
@@ -524,7 +466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				}
 
 				const { data, error } = await supabaseAdmin
-					.from('profiles')
+					.from('users')
 					.update({ is_admin: isAdmin })
 					.eq('id', userId)
 					.select()
@@ -554,7 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				res.json(requests);
 			} catch (error) {
 				console.error('Error fetching admin requests:', error);
-				res.status(500).json({ message: 'Failed to fetch admin requests' });
+				res.status(500).json({ message: 'Failed to fetch admin requests', error });
 			}
 		}
 	);

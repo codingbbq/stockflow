@@ -72,7 +72,7 @@ export const authenticateToken = async (
 		// Get user profile from database to check admin status
 		if (supabaseAdmin) {
 			const { data: profile, error: profileError } = await supabaseAdmin
-				.from('profiles')
+				.from('users')
 				.select('id, email, first_name, last_name, is_admin')
 				.eq('id', user.id)
 				.single();
@@ -111,49 +111,6 @@ export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: Nex
 
 	if (!req.user.is_admin) {
 		return res.status(403).json({ message: 'Admin access required' });
-	}
-
-	next();
-};
-
-// Optional authentication - doesn't fail if no token provided
-export const optionalAuth = async (
-	req: AuthenticatedRequest,
-	res: Response,
-	next: NextFunction
-) => {
-	if (!supabase) {
-		return next();
-	}
-
-	const authHeader = req.headers.authorization;
-	const token = authHeader && authHeader.split(' ')[1];
-
-	if (!token) {
-		return next();
-	}
-
-	try {
-		const {
-			data: { user },
-			error,
-		} = await supabase.auth.getUser(token);
-
-		if (!error && user && supabaseAdmin) {
-			const { data: profile } = await supabaseAdmin
-				.from('profiles')
-				.select('id, email, first_name, last_name, is_admin')
-				.eq('id', user.id)
-				.single();
-
-			req.user = {
-				id: user.id,
-				email: user.email,
-				is_admin: profile?.is_admin || false,
-			};
-		}
-	} catch (error) {
-		console.error('Optional auth error:', error);
 	}
 
 	next();

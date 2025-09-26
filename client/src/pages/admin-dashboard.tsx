@@ -36,7 +36,7 @@ import {
 import type { Stock, StockRequest } from "@shared/schema";
 
 export default function AdminDashboard() {
-  const { isAuthenticated, profile, loading } = useAuth();
+  const { isAdmin, isAuthenticated, loading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [addStockModalOpen, setAddStockModalOpen] = useState(false);
@@ -49,12 +49,12 @@ export default function AdminDashboard() {
   // All hooks must be called before any conditional returns
   const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
     queryKey: ["/api/stocks"],
-    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
+    enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
 
   const { data: requests, isLoading: requestsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/requests"],
-    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
+    enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
 
   const { data: stats, isLoading: statsLoading } = useQuery<{
@@ -64,20 +64,20 @@ export default function AdminDashboard() {
     totalUsers: number;
   }>({
     queryKey: ["/api/admin/dashboard/stats"],
-    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
+    enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
 
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ["/api/admin/users"],
-    enabled: isAuthenticated && profile?.is_admin, // Only fetch if authorized
+    enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
-    if (!loading && (!isAuthenticated || !profile?.is_admin)) {
+    if (!loading && (!isAuthenticated || !isAdmin)) {
       window.location.href = "/login";
     }
-  }, [isAuthenticated, profile, loading]);
+  }, [isAuthenticated, loading]);
 
   const approveMutation = useMutation({
     mutationFn: async ({ id, adminNotes }: { id: string; adminNotes?: string }) => {
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
   }
 
   // Show unauthorized message if not admin
-  if (!isAuthenticated || !profile?.is_admin) {
+  if (!isAuthenticated || !isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

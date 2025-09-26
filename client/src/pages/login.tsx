@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, Loader2, Box } from "lucide-react";
 
@@ -20,7 +20,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const { signIn } = useSupabaseAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginForm>({

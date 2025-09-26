@@ -8,7 +8,7 @@ import { ClipboardList, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { StockRequestWithStock } from '@shared/types/StockRequestWithStock';
 
 export default function UserDashboard() {
-	const { isAuthenticated, profile, loading } = useAuth();
+	const { user, isAuthenticated, loading } = useAuth();
 
 	const { data: requests, isLoading } = useQuery<StockRequestWithStock[]>({
 		queryKey: ['/api/requests/user'],
@@ -70,7 +70,7 @@ export default function UserDashboard() {
 				<div className='mb-4 sm:mb-6 lg:mb-8'>
 					<h1 className='text-2xl sm:text-3xl font-bold text-foreground'>My Dashboard</h1>
 					<p className='text-sm sm:text-base text-muted-foreground truncate'>
-						Welcome back, {profile?.first_name || profile?.email}
+						Welcome back, {user?.first_name || user?.email}
 					</p>
 				</div>
 
