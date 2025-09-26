@@ -48,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				email,
 				password,
 				firstName,
-				lastName
+				lastName,
 			});
 			if (error) {
 				return res.status(400).json({ message: error.message });
@@ -70,41 +70,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		}
 	});
 
-	app.get('/api/auth/me', async (req, res) => {
+	app.get('/api/auth/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
 		try {
-			const token = req.cookies.auth_token;
-
-			if (!token || !supabaseAdmin) {
+			if (!req.user) {
 				return res.status(401).json({ message: 'Not authenticated' });
 			}
 
-			const {
-				data: { user },
-				error,
-			} = await supabaseAdmin.auth.getUser(token);
-
-			if (error || !user) {
-				return res.status(401).json({ message: 'Invalid token' });
+			// Fetch user profile from your local users table
+			const user = await storage.getUser(req.user.id);
+			if (!user) {
+				return res.status(404).json({ message: 'User not found' });
 			}
 
-			const { data: profile, error: profileError } = await supabaseAdmin
-				.from('users')
-				.select('*')
-				.eq('id', user.id)
-				.single();
-
-			if (profileError) {
-				console.error('Error fetching profile:', profileError);
-				return res.status(500).json({ message: 'Failed to fetch user profile' });
-			}
-
-			res.json({
-				user: user,
-				profile: profile,
-			});
+			res.json({ user });
 		} catch (error) {
 			console.error('Auth check error:', error);
-			res.status(500).json({ message: 'Internal server error' });
+			res.status(500).json({ message: 'Internal server error', error });
 		}
 	});
 
