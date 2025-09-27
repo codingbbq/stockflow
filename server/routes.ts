@@ -75,14 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			if (!req.user) {
 				return res.status(401).json({ message: 'Not authenticated' });
 			}
-
-			// Fetch user profile from your local users table
-			const user = await storage.getUser(req.user.id);
-			if (!user) {
-				return res.status(404).json({ message: 'User not found' });
-			}
-
-			res.json({ user });
+			res.json({ user: req.user });
 		} catch (error) {
 			console.error('Auth check error:', error);
 			res.status(500).json({ message: 'Internal server error', error });
