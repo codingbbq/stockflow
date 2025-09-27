@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Box, Users, ShoppingCart, LogIn, LogOut, Settings, Menu, X } from "lucide-react";
 
 export function NavigationHeader() {
-  const { isAuthenticated, profile, signOut } = useAuth();
+  const { isAdmin, isAuthenticated, user, signOut } = useAuth();
+  console.log(isAdmin);
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -51,7 +52,7 @@ export function NavigationHeader() {
                 Dashboard
               </Link>
             )}
-            {isAuthenticated && profile?.is_admin && (
+            {isAuthenticated && isAdmin && (
               <Link 
                 href="/admin" 
                 className={`transition-colors ${location === "/admin" ? "text-foreground" : "text-muted-foreground hover:text-primary"}`}
@@ -68,7 +69,7 @@ export function NavigationHeader() {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-muted-foreground truncate max-w-[120px]">
-                    {profile?.first_name || profile?.email}
+                    {user?.first_name || user?.email}
                   </span>
                   <Button 
                     variant="outline" 
@@ -129,7 +130,7 @@ export function NavigationHeader() {
                   Dashboard
                 </Link>
               )}
-              {isAuthenticated && profile?.is_admin && (
+              {isAuthenticated && isAdmin && (
                 <Link 
                   href="/admin" 
                   className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
@@ -148,7 +149,7 @@ export function NavigationHeader() {
                   <div className="space-y-3">
                     <div className="px-3 py-2">
                       <span className="text-sm text-muted-foreground block truncate">
-                        {profile?.first_name || profile?.email}
+                        {user?.first_name || user?.email}
                       </span>
                     </div>
                     <Button 

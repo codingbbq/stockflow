@@ -109,7 +109,7 @@ export function useAuth() {
 		user,
 		loading,
 		isAuthenticated: !!user,
-		isAdmin: user?.isAdmin ?? false,
+		isAdmin: user?.is_admin ?? false,
 		signIn,
 		signUp,
 		signOut,
