@@ -398,20 +398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {
 			try {
-				if (!supabaseAdmin) {
-					return res.status(500).json({ message: 'Admin service not available' });
-				}
-
-				const { data: users, error } = await supabaseAdmin
-					.from('users')
-					.select('*')
-					.order('created_at', { ascending: false });
-
-				if (error) {
-					console.error('Error fetching users:', error);
-					return res.status(500).json({ message: 'Failed to fetch users' });
-				}
-
+				const users = await storage.getAllUsers();
 				res.json(users);
 			} catch (error) {
 				console.error('Error fetching users:', error);
@@ -422,39 +409,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 	// Admin-only: Toggle user admin status (SECURE)
 	app.put(
-		'/api/admin/users/:userId/toggle-admin',
+		'/api/admin/users/:userId/toggle-active',
 		authenticateToken,
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {
 			try {
-				if (!supabaseAdmin || !req.user) {
-					return res.status(500).json({ message: 'Admin service not available' });
-				}
-
 				const { userId } = req.params;
-				const { isAdmin } = req.body;
-
-				// Prevent users from modifying their own admin status (security measure)
-				if (userId === req.user.id) {
-					return res.status(400).json({ message: 'Cannot modify your own admin status' });
-				}
-
-				const { data, error } = await supabaseAdmin
-					.from('users')
-					.update({ is_admin: isAdmin })
-					.eq('id', userId)
-					.select()
-					.single();
-
-				if (error) {
-					console.error('Error updating user admin status:', error);
-					return res.status(500).json({ message: 'Failed to update user admin status' });
-				}
-
-				res.json(data);
+				const { isActive } = req.body;
+				const userData = await storage.toggleIsActive(userId, isActive);
+				res.json(userData);
 			} catch (error) {
-				console.error('Error updating user admin status:', error);
-				res.status(500).json({ message: 'Failed to update user admin status' });
+				console.error('Error updating user status:', error);
+				res.status(500).json({ message: 'Failed to update user active status' });
 			}
 		}
 	);

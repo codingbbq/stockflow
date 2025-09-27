@@ -33,7 +33,7 @@ import {
   Check,
   X,
 } from "lucide-react";
-import type { Stock, StockRequest } from "@shared/schema";
+import type { SafeUser, Stock, StockRequest } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { isAdmin, isAuthenticated, loading } = useAuth();
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
     enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
 
-  const { data: users, isLoading: usersLoading } = useQuery({
+  const { data: users, isLoading: usersLoading } = useQuery<SafeUser[]>({
     queryKey: ["/api/admin/users"],
     enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
@@ -144,13 +144,13 @@ export default function AdminDashboard() {
   });
 
   const toggleAdminMutation = useMutation({
-    mutationFn: async ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
-      await apiRequest("PUT", `/api/admin/users/${id}/toggle-admin`, { isAdmin });
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      await apiRequest("PUT", `/api/admin/users/${id}/toggle-active`, { isActive });
     },
     onSuccess: () => {
       toast({
         title: "User updated",
-        description: "User admin status has been updated successfully.",
+        description: "User active status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
@@ -663,7 +663,7 @@ export default function AdminDashboard() {
                         <th className="text-left py-3 px-4 font-medium">User</th>
                         <th className="text-left py-3 px-4 font-medium">Email</th>
                         <th className="text-left py-3 px-4 font-medium">Joined</th>
-                        <th className="text-left py-3 px-4 font-medium">Admin</th>
+                        <th className="text-left py-3 px-4 font-medium">Active</th>
                         <th className="text-left py-3 px-4 font-medium">Actions</th>
                       </tr>
                     </thead>
@@ -689,20 +689,20 @@ export default function AdminDashboard() {
                           </tr>
                         ))
                       ) : (
-                        users?.map((user: any) => (
+                        users?.map((user: SafeUser) => (
                           <tr key={user.id} className="border-b hover:bg-muted/50">
                             <td className="py-4 px-4">
                               <div className="flex items-center space-x-3">
                                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                                   <span className="text-xs font-medium text-primary-foreground">
-                                    {(user.first_name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                                    {(user.firstName?.[0] || user.email?.[0] || "U").toUpperCase()}
                                   </span>
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground" data-testid={`user-name-${user.id}`}>
-                                    {user.first_name && user.last_name
-                                      ? `${user.first_name} ${user.last_name}`
-                                      : user.first_name || "Unknown User"}
+                                    {user.firstName && user.lastName
+                                      ? `${user.firstName} ${user.lastName}`
+                                      : user.firstName || "Unknown User"}
                                   </p>
                                 </div>
                               </div>
@@ -711,25 +711,25 @@ export default function AdminDashboard() {
                               {user.email}
                             </td>
                             <td className="py-4 px-4 text-muted-foreground">
-                              {new Date(user.created_at).toLocaleDateString()}
+                              {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}
                             </td>
                             <td className="py-4 px-4">
-                              <Badge className={user.is_admin ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                                {user.is_admin ? "Admin" : "User"}
+                              <Badge className={user.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                                {user.isActive ? "Active" : "Inactive"}
                               </Badge>
                             </td>
                             <td className="py-4 px-4">
                               <Button
                                 size="sm"
-                                variant={user.is_admin ? "destructive" : "default"}
+                                variant={user.isActive ? "destructive" : "default"}
                                 onClick={() => toggleAdminMutation.mutate({ 
                                   id: user.id, 
-                                  isAdmin: !user.is_admin 
+                                  isActive: !user.isActive 
                                 })}
                                 disabled={toggleAdminMutation.isPending}
                                 data-testid={`button-toggle-admin-${user.id}`}
                               >
-                                {user.is_admin ? "Remove Admin" : "Make Admin"}
+                                {user.isActive ? "Deactivate" : "Activate"}
                               </Button>
                             </td>
                           </tr>

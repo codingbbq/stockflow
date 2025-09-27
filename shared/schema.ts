@@ -105,6 +105,10 @@ export const stockHistoryRelations = relations(stockHistory, ({ one }) => ({
   }),
 }));
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
 
 export const insertStockSchema = createInsertSchema(stocks).omit({
   id: true,
@@ -129,6 +133,8 @@ export const insertStockHistorySchema = createInsertSchema(stockHistory).omit({
 
 // Types
 export type User = typeof users.$inferSelect;
+export type SafeUser = Omit<User, 'password_hash' | 'isAdmin'>;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Stock = typeof stocks.$inferSelect;
 export type InsertStock = z.infer<typeof insertStockSchema>;
 export type StockRequest = typeof stockRequests.$inferSelect;

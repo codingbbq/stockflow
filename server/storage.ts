@@ -1,4 +1,4 @@
-import bcrypt, { compare }  from "bcrypt";
+import bcrypt, { compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {
 	users,
@@ -6,6 +6,7 @@ import {
 	stockRequests,
 	stockHistory,
 	type User,
+	type SafeUser,
 	type Stock,
 	type InsertStock,
 	type StockRequest,
@@ -79,12 +80,15 @@ export class DatabaseStorage implements IStorage {
 			return { access_token: '', user: null, error: new Error('Invalid password') };
 		}
 
-    
 		const { password_hash, ...userWithoutPassword } = user;
-    const isActive = user.isActive ?? false;
-    if(!isActive) {
-      return { access_token: '', user: userWithoutPassword as User, error: new Error('Your account is not active') };
-    }
+		const isActive = user.isActive ?? false;
+		if (!isActive) {
+			return {
+				access_token: '',
+				user: userWithoutPassword as User,
+				error: new Error('Your account is not active'),
+			};
+		}
 
 		const token = jwt.sign(
 			{ id: user.id, email: user.email, is_admin: user.isAdmin },
@@ -100,17 +104,16 @@ export class DatabaseStorage implements IStorage {
 		email,
 		password,
 		firstName,
-		lastName
-	} : {
-		email: string,
-		password: string,
-		firstName?: string,
-		lastName?: string
+		lastName,
+	}: {
+		email: string;
+		password: string;
+		firstName?: string;
+		lastName?: string;
 	}): Promise<{ user: User | null; error: Error | null }> {
 		try {
-
-      // Hash the password before storing
-    const passwordHash = await bcrypt.hash(password, 10);
+			// Hash the password before storing
+			const passwordHash = await bcrypt.hash(password, 10);
 
 			const [newUser] = await db
 				.insert(users)
@@ -126,7 +129,7 @@ export class DatabaseStorage implements IStorage {
 			const { isAdmin, password_hash, ...userDetails } = newUser;
 			return { user: userDetails as User, error: null };
 		} catch (error) {
-			return { user: null, error: new Error('Could add a new user')  };
+			return { user: null, error: new Error('Could add a new user') };
 		}
 	}
 
@@ -134,6 +137,31 @@ export class DatabaseStorage implements IStorage {
 	async getUser(id: string): Promise<User | undefined> {
 		const [user] = await db.select().from(users).where(eq(users.id, id));
 		return user;
+	}
+
+	async getAllUsers(): Promise<SafeUser[]> {
+		return await db
+			.select({
+				id: users.id,
+				email: users.email,
+				firstName: users.firstName,
+				lastName: users.lastName,
+				isActive: users.isActive,
+				createdAt: users.createdAt,
+			})
+			.from(users)
+			.where(eq(users.isAdmin, false))
+			.orderBy(desc(users.createdAt));
+	}
+
+	async toggleIsActive(userId: string, isActive: boolean): Promise<{ isActive: boolean | null }> {
+		const [status] = await db
+			.update(users)
+			.set({ isActive })
+			.where(eq(users.id, userId))
+			.returning({ isActive: users.isActive });
+
+		return status;
 	}
 
 	// Stock operations
