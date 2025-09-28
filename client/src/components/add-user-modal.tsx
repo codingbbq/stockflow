@@ -78,7 +78,7 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent
-				className='w-[95vw] max-w-lg mx-auto max-h-[90vh] overflow-y-auto'
+				className='max-w-2xl mx-auto max-h-2xl overflow-y-auto'
 				data-testid='modal-add-stock'
 			>
 				<DialogHeader>
@@ -118,7 +118,7 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 										<Input
 											placeholder='Enter password'
 											type='password'
-                      {...field}
+											{...field}
 											data-testid='input-user-password'
 										/>
 									</FormControl>
@@ -169,22 +169,28 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 							name='isActive'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Activate User</FormLabel>
 									<FormControl>
-										<Checkbox
-											checked={field.value ?? false}
-                      onCheckedChange={(checked) =>
-                        field.onChange(!!checked)
-                      }
-											name='isActive'
-											data-testid='input-user-active'
-										/>
+										<div className='flex items-center space-x-3'>
+											<Checkbox
+												id='isActive'
+												className='h-5 w-5'
+												checked={field.value ?? false}
+												onCheckedChange={(checked) =>
+													field.onChange(!!checked)
+												}
+												name='isActive'
+												data-testid='input-user-active'
+											/>
+											<FormLabel htmlFor='isActive' className='mb-0'>
+												Activate User
+											</FormLabel>
+										</div>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-						
+
 						<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4'>
 							<Button
 								type='submit'
