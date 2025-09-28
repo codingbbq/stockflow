@@ -105,9 +105,16 @@ export const stockHistoryRelations = relations(stockHistory, ({ one }) => ({
   }),
 }));
 
-export const insertUserSchema = createInsertSchema(users).omit({
+export const insertUserSchema = createInsertSchema(users)
+.omit({
   id: true,
   createdAt: true,
+})
+.extend({
+  email: z.string().email({ message: "Invalid email address" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  password_hash: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export const insertStockSchema = createInsertSchema(stocks).omit({

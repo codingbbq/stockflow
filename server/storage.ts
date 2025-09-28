@@ -112,6 +112,17 @@ export class DatabaseStorage implements IStorage {
 		lastName?: string;
 	}): Promise<{ user: User | null; error: Error | null }> {
 		try {
+			// Check for duplicate email
+			const existingUser = await db
+				.select()
+				.from(users)
+				.where(eq(users.email, email))
+				.limit(1)
+				.then((res) => res[0]);
+			if (existingUser) {
+				return { user: null, error: new Error('Email already exists') };
+			}
+
 			// Hash the password before storing
 			const passwordHash = await bcrypt.hash(password, 10);
 
@@ -122,8 +133,42 @@ export class DatabaseStorage implements IStorage {
 					password_hash: passwordHash,
 					firstName,
 					lastName,
-					isAdmin: false,
 					isActive: false,
+				})
+				.returning();
+			const { isAdmin, password_hash, ...userDetails } = newUser;
+			return { user: userDetails as User, error: null };
+		} catch (error) {
+			return { user: null, error: new Error('Could add a new user') };
+		}
+	}
+
+	// New User SignUp
+	async createNewUser({
+		email,
+		password,
+		firstName,
+		lastName,
+		isActive = false,
+	}: {
+		email: string;
+		password: string;
+		firstName?: string;
+		lastName?: string;
+		isActive?: boolean;
+	}): Promise<{ user: User | null; error: Error | null }> {
+		try {
+			// Hash the password before storing
+			const passwordHash = await bcrypt.hash(password, 10);
+
+			const [newUser] = await db
+				.insert(users)
+				.values({
+					email,
+					password_hash: passwordHash,
+					firstName,
+					lastName,
+					isActive,
 				})
 				.returning();
 			const { isAdmin, password_hash, ...userDetails } = newUser;

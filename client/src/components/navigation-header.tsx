@@ -6,7 +6,6 @@ import { Box, Users, ShoppingCart, LogIn, LogOut, Settings, Menu, X } from "luci
 
 export function NavigationHeader() {
   const { isAdmin, isAuthenticated, user, signOut } = useAuth();
-  console.log(isAdmin);
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

@@ -34,7 +34,6 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 			firstName: '',
 			lastName: '',
 			password_hash: '',
-			isAdmin: false,
 			isActive: true,
 		},
 	});
@@ -118,7 +117,8 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 									<FormControl>
 										<Input
 											placeholder='Enter password'
-											{...field}
+											type='password'
+                      {...field}
 											data-testid='input-user-password'
 										/>
 									</FormControl>
@@ -172,7 +172,10 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 									<FormLabel>Activate User</FormLabel>
 									<FormControl>
 										<Checkbox
-											{...field}
+											checked={field.value ?? false}
+                      onCheckedChange={(checked) =>
+                        field.onChange(!!checked)
+                      }
 											name='isActive'
 											data-testid='input-user-active'
 										/>
