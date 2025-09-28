@@ -412,7 +412,7 @@ export class DatabaseStorage implements IStorage {
 			.from(stocks)
 			.where(sql`${stocks.quantity} <= 5`);
 
-		const [totalUsers] = await db.select({ count: sql<number>`count(*)` }).from(users);
+		const [totalUsers] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.isAdmin, false));
 
 		return {
 			totalStockItems: totalStockItems.count,
