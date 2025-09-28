@@ -127,6 +127,7 @@ export const insertStockSchema = createInsertSchema(stocks).omit({
   quantity: z.number().min(0, { message: "Quantity cannot be negative" }), 
   category: z.string().nullable().optional(),
   imageUrl: z.string().nullable().optional(),
+  imageFile: z.any().optional(),
   description: z.string().nullable().optional(),
 });
 

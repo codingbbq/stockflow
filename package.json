@@ -49,6 +49,7 @@
     "@types/memoizee": "^0.4.12",
     "@types/pg": "^8.15.5",
     "bcrypt": "^6.0.0",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
