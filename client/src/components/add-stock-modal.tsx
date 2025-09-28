@@ -93,7 +93,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[90vh] overflow-y-auto" data-testid="modal-add-stock">
+      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto" data-testid="modal-add-stock">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Add New Stock Item</DialogTitle>
         </DialogHeader>

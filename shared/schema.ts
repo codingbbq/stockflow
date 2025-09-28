@@ -122,6 +122,10 @@ export const insertStockSchema = createInsertSchema(stocks).omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
+  name: z.string().min(1, { message: "Name is required" }),
+  code: z.string().min(1, { message: "Code is required" }),
+  quantity: z.number().min(0, { message: "Quantity cannot be negative" }), 
+  category: z.string().nullable().optional(),
   imageUrl: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
 });
