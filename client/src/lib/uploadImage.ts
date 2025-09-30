@@ -25,7 +25,6 @@ export async function uploadImageToSupabase(file: File): Promise<string> {
   const { data: urlData } = supabase.storage
     .from("stockflow")
     .getPublicUrl(filePath);
-  
-  console.log(urlData)
+
   return urlData?.publicUrl ?? '';
 }

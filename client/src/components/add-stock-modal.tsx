@@ -102,7 +102,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
 		// Prepare data for mutation
 		const submitData = { ...data, imageUrl };
 		delete submitData.imageFile;
-		mutation.mutate(data);
+		mutation.mutate(submitData);
 	};
 
 	return (
