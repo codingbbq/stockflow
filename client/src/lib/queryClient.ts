@@ -3,8 +3,14 @@ import { supabase } from "@/lib/supabase";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage: string;
+    try {
+      const data = await res.json();
+      errorMessage = data.message || JSON.stringify(data);
+    } catch {
+      errorMessage = (await res.text()) || res.statusText;
+    }
+    throw new Error(errorMessage);
   }
 }
 
