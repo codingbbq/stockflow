@@ -5,7 +5,6 @@ import { NavigationHeader } from '@/components/navigation-header';
 import { StockCard } from '@/components/stock-card';
 import { RequestModal } from '@/components/request-modal';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
 	Select,
 	SelectContent,
@@ -15,8 +14,9 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Grid, List, Plus } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { Stock } from '@shared/schema';
+import { useLocation } from "wouter";
 
 export default function PublicCatalog() {
 	const { isAuthenticated } = useAuth();
@@ -25,6 +25,7 @@ export default function PublicCatalog() {
 	const [selectedCategory, setSelectedCategory] = useState('all');
 	const [requestModalOpen, setRequestModalOpen] = useState(false);
 	const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
+	const [, navigate] = useLocation();
 
 	const { data: stocks, isLoading } = useQuery<Stock[]>({
 		queryKey: ['/api/stocks'],
@@ -53,7 +54,12 @@ export default function PublicCatalog() {
 	};
 
 	const handleLoginClick = () => {
-		window.location.href = '/api/login';
+		navigate('/login');
+		toast({
+			title: 'Login Required',
+			description: 'Please log in to request stock items.',
+			variant: 'destructive',
+		});
 	};
 
 	return (
