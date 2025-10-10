@@ -34,6 +34,7 @@ import {
   X,
 } from "lucide-react";
 import type { SafeUser, Stock, StockRequest } from "@shared/schema";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AdminDashboard() {
   const { isAdmin, isAuthenticated, loading } = useAuth();
@@ -466,27 +467,39 @@ export default function AdminDashboard() {
                               </Badge>
                             </td>
                             <td className="py-3 px-4">
-                              <div className="flex space-x-2">
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => {
-                                    setSelectedStock(stock);
-                                    setStockDetailModalOpen(true);
-                                  }}
-                                  data-testid={`button-view-stock-${stock.id}`}
-                                >
-                                  <BarChart3 className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  onClick={() => deleteMutation.mutate(stock.id)}
-                                  disabled={deleteMutation.isPending}
-                                  data-testid={`button-delete-stock-${stock.id}`}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
+                              <div className="flex space-x-3">
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => {
+                                        setSelectedStock(stock);
+                                        setStockDetailModalOpen(true);
+                                      }}
+                                      data-testid={`button-view-stock-${stock.id}`}
+                                    >
+                                      <BarChart3 className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="center">View Product Details</TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="destructive" 
+                                      onClick={() => deleteMutation.mutate(stock.id)}
+                                      disabled={deleteMutation.isPending}
+                                      data-testid={`button-delete-stock-${stock.id}`}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="center">Delete Product</TooltipContent>
+                                </Tooltip>
+                                
                               </div>
                             </td>
                           </tr>
