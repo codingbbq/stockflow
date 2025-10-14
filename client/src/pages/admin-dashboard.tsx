@@ -16,6 +16,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -487,19 +498,42 @@ export default function AdminDashboard() {
                                 
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="destructive" 
-                                      onClick={() => deleteMutation.mutate(stock.id)}
-                                      disabled={deleteMutation.isPending}
-                                      data-testid={`button-delete-stock-${stock.id}`}
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
+                                    <div>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            disabled={deleteMutation.isPending}
+                                            data-testid={`button-delete-stock-${stock.id}`}
+                                          >
+                                            <Trash2 className="w-4 h-4" />
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Stock</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Are you sure you want to delete <b>{stock.name}</b>? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                              onClick={() => deleteMutation.mutate(stock.id)}
+                                              disabled={deleteMutation.isPending}
+                                            >
+                                              Delete
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </div>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" align="center">Delete Product</TooltipContent>
+                                  <TooltipContent side="top" align="center">
+                                    Delete Product
+                                  </TooltipContent>
                                 </Tooltip>
-                                
                               </div>
                             </td>
                           </tr>
@@ -781,6 +815,7 @@ export default function AdminDashboard() {
         open={addUserModalOpen}
         onOpenChange={setAddUserModalOpen}
       />
+
     </div>
   );
 }
