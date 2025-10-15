@@ -5,6 +5,7 @@ import { NavigationHeader } from "@/components/navigation-header";
 import { AddStockModal } from "@/components/add-stock-modal";
 import { AddUserModal } from "@/components/add-user-modal";
 import { StockDetailModal } from "@/components/stock-detail-modal";
+import { AllRequestModal } from "@/components/all-request-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +44,7 @@ import {
   Trash2,
   Check,
   X,
+  History
 } from "lucide-react";
 import type { SafeUser, Stock, StockRequest } from "@shared/schema";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -53,6 +55,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const [addStockModalOpen, setAddStockModalOpen] = useState(false);
   const [stockDetailModalOpen, setStockDetailModalOpen] = useState(false);
+  const [allRequestModalOpen, setAllRequestModalOpen] = useState(false);
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
   const [requestFilter, setRequestFilter] = useState("all");
@@ -479,6 +482,24 @@ export default function AdminDashboard() {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex space-x-3">
+
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => {
+                                        setSelectedStock(stock);
+                                        setAllRequestModalOpen(true);
+                                      }}
+                                      data-testid={`button-view-stock-${stock.id}`}
+                                    >
+                                      <History className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="center">View All Requests</TooltipContent>
+                                </Tooltip>
+
                                 <Tooltip>
                                   <TooltipTrigger>
                                     <Button 
@@ -808,6 +829,12 @@ export default function AdminDashboard() {
       <StockDetailModal
         open={stockDetailModalOpen}
         onOpenChange={setStockDetailModalOpen}
+        stock={selectedStock}
+      />
+
+      <AllRequestModal
+        open={allRequestModalOpen}
+        onOpenChange={setAllRequestModalOpen}
         stock={selectedStock}
       />
 

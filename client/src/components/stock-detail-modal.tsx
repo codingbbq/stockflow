@@ -22,7 +22,7 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
     enabled: open && !!stock?.id,
   });
 
-  const { data: requests, isLoading: requestsLoading } = useQuery<StockRequest[]>({
+  const { data: requests } = useQuery<StockRequest[]>({
     queryKey: ["/api/stocks", stock?.id, "requests"],
     enabled: open && !!stock?.id,
   });
@@ -140,55 +140,6 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
                 ))
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Request History Table */}
-        <div className="mt-8">
-          <h4 className="font-semibold text-foreground mb-4">All Requests</h4>
-          <div className="bg-muted/50 rounded-lg overflow-hidden">
-            {requestsLoading ? (
-              <div className="p-4">
-                <Skeleton className="h-40 w-full" />
-              </div>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left py-2 px-4 text-sm font-medium text-foreground">User</th>
-                    <th className="text-left py-2 px-4 text-sm font-medium text-foreground">Quantity</th>
-                    <th className="text-left py-2 px-4 text-sm font-medium text-foreground">Date</th>
-                    <th className="text-left py-2 px-4 text-sm font-medium text-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {requests?.map((request) => (
-                    <tr key={request.id} data-testid={`row-request-${request.id}`}>
-                      <td className="py-2 px-4 text-sm text-foreground">
-                        {(request as any).user?.firstName || (request as any).user?.email || "Unknown"}
-                      </td>
-                      <td className="py-2 px-4 text-sm text-foreground">{request.quantity}</td>
-                      <td className="py-2 px-4 text-sm text-muted-foreground">
-                        {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Unknown date'}
-                      </td>
-                      <td className="py-2 px-4">
-                        <Badge 
-                          className={
-                            request.status === "approved" 
-                              ? "bg-green-100 text-green-800"
-                              : request.status === "denied"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }
-                        >
-                          {request.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
           </div>
         </div>
       </DialogContent>
