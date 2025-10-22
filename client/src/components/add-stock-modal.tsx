@@ -59,7 +59,7 @@ export function AddStockModal({ open, onOpenChange }: AddStockModalProps) {
 				title: 'Stock added',
 				description: 'New stock item has been added successfully.',
 			});
-			queryClient.invalidateQueries({ queryKey: ['/api/admin/stocks'] });
+			queryClient.invalidateQueries({ queryKey: ['/api/stocks'] });
 			queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
 			onOpenChange(false);
 			form.reset();
