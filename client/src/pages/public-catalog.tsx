@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationHeader } from '@/components/navigation-header';
@@ -16,7 +16,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Search } from 'lucide-react';
 import type { Stock } from '@shared/schema';
-import { useLocation } from "wouter";
+import { useLocation } from 'wouter';
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationLink,
+	PaginationPrevious,
+	PaginationNext,
+} from '@/components/ui/pagination';
 
 export default function PublicCatalog() {
 	const { isAuthenticated } = useAuth();
@@ -25,16 +33,20 @@ export default function PublicCatalog() {
 	const [selectedCategory, setSelectedCategory] = useState('all');
 	const [requestModalOpen, setRequestModalOpen] = useState(false);
 	const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
+	const [currentPage, setCurrentPage] = useState(1);
 	const [, navigate] = useLocation();
 
-	const { data: stocks, isLoading } = useQuery<Stock[]>({
-		queryKey: ['/api/stocks'],
+	const itemsPerPage = 8;
+	const { data, isLoading } = useQuery<{ stocks: Stock[]; totalPages: number }>({
+		queryKey: ['/api/stocks', currentPage, itemsPerPage],
 		queryFn: async () => {
-			const res = await fetch('/api/stocks');
+			const res = await fetch(`/api/stocks?page=${currentPage}&limit=${itemsPerPage}`);
 			if (!res.ok) throw new Error('Network response was not ok');
 			return res.json();
 		},
 	});
+	const stocks = data?.stocks ?? [];
+	const totalPages = data?.totalPages ?? 0;
 
 	const filteredStocks = stocks?.filter((stock) => {
 		const matchesSearch =
@@ -61,6 +73,10 @@ export default function PublicCatalog() {
 			variant: 'destructive',
 		});
 	};
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchTerm, selectedCategory]);
 
 	return (
 		<div className='min-h-screen bg-background'>
@@ -164,6 +180,45 @@ export default function PublicCatalog() {
 					)}
 				</div>
 			</section>
+
+			{totalPages > 1 && (
+				<Pagination className='my-6'>
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevious
+								href='#'
+								onClick={(e) => {
+									e.preventDefault();
+									if (currentPage > 1) setCurrentPage(currentPage - 1);
+								}}
+							/>
+						</PaginationItem>
+						{Array.from({ length: totalPages }).map((_, i) => (
+							<PaginationItem key={i + 1}>
+								<PaginationLink
+									href='#'
+									isActive={currentPage === i + 1}
+									onClick={(e) => {
+										e.preventDefault();
+										setCurrentPage(i + 1);
+									}}
+								>
+									{i + 1}
+								</PaginationLink>
+							</PaginationItem>
+						))}
+						<PaginationItem>
+							<PaginationNext
+								href='#'
+								onClick={(e) => {
+									e.preventDefault();
+									if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+								}}
+							/>
+						</PaginationItem>
+					</PaginationContent>
+				</Pagination>
+			)}
 
 			<RequestModal
 				open={requestModalOpen}

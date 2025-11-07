@@ -62,7 +62,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // All hooks must be called before any conditional returns
-  const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
+  const { data, isLoading: stocksLoading } = useQuery<{ stocks: Stock[]; total: number }>({
     queryKey: ["/api/stocks"],
     enabled: isAuthenticated && isAdmin, // Only fetch if authorized
   });
@@ -229,6 +229,9 @@ export default function AdminDashboard() {
       (request as any).stock?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  const stocks = data?.stocks ?? [];
+  const totalPages = data?.total ?? 0;
 
   // Show loading while checking authentication
   if (loading) {

@@ -1,14 +1,11 @@
 import type { Express } from 'express';
 import { createServer, type Server } from 'http';
 import { storage } from './storage';
-import {
-	insertStockSchema,
-	insertStockRequestSchema,
-	insertStockHistorySchema,
-} from '@shared/schema';
+import { stocks as stocksTable, insertStockSchema, insertStockRequestSchema } from '@shared/schema';
 import { z } from 'zod';
-import { authenticateToken, requireAdmin, type AuthenticatedRequest, supabaseAdmin } from './auth';
-
+import { authenticateToken, requireAdmin, type AuthenticatedRequest } from './auth';
+import { db } from './db';
+import { sql } from 'drizzle-orm';
 export async function registerRoutes(app: Express): Promise<Server> {
 	// Authentication routes
 	app.post('/api/auth/signin', async (req, res) => {
@@ -83,10 +80,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 	});
 
 	// Public stock routes (read-only, no auth required)
+	// Example: GET /api/stocks?page=1&limit=8
 	app.get('/api/stocks', async (req, res) => {
 		try {
-			const stocks = await storage.getAllStocks();
-			res.json(stocks);
+			const page = Number(req.query.page) || 1;
+			const limit = Number(req.query.limit) || 8;
+			const offset = (page - 1) * limit;
+
+			const stocks = await db.query.stocks.findMany({
+				offset,
+				limit,
+			});
+
+			const totalResult = await db.select({ count: sql`count(*)` }).from(stocksTable);
+			const total = Number(totalResult[0]?.count ?? 0);
+			const totalPages = Math.max(1, Math.ceil(total / limit));
+			res.json({ stocks, totalPages });
+
 		} catch (error) {
 			console.error('Error fetching stocks:', error);
 			res.status(500).json({ message: 'Failed to fetch stocks' });
@@ -415,20 +425,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		async (req: AuthenticatedRequest, res) => {
 			try {
 				const user = await storage.createNewUser({
-				email: req.body.email,
-				password: req.body.password_hash,
-				firstName: req.body.firstName,
-				lastName: req.body.lastName,
-				isActive: req.body.isActive
-			});
-			res.json(user);
-			} catch(error) {
+					email: req.body.email,
+					password: req.body.password_hash,
+					firstName: req.body.firstName,
+					lastName: req.body.lastName,
+					isActive: req.body.isActive,
+				});
+				res.json(user);
+			} catch (error) {
 				console.error('Error fetching users:', error);
 				res.status(500).json({ message: 'Failed to fetch users' });
 			}
-			
 		}
-	)
+	);
 
 	// Admin-only: Toggle user admin status (SECURE)
 	app.put(
