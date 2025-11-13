@@ -4,10 +4,10 @@ import { NavigationHeader } from "@/components/navigation-header";
 import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OverviewTab from "@/components/admin-dashboard-tabs/overviewTab";
 import StockManagementTab from "@/components/admin-dashboard-tabs/StockManagementTab";
 import UsersTab from "@/components/admin-dashboard-tabs/UsersTab";
 import RequestsTab from "@/components/admin-dashboard-tabs/RequestsTab";
+import OverviewTab from "@/components/admin-dashboard-tabs/OverviewTab";
 
 export default function AdminDashboard() {
   const { isAdmin, isAuthenticated, loading } = useAuth();

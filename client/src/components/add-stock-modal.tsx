@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { isUnauthorizedError } from '@/lib/authUtils';
-import { CloudUpload } from 'lucide-react';
 import type { InsertStock } from '@shared/schema';
 import { uploadImageToSupabase } from '@/lib/uploadImage';
 
