@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { isUnauthorizedError } from '@/lib/authUtils';
 import { StockDetailModal } from '../stock-detail-modal';
 import { AllRequestModal } from '../all-request-modal';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../ui/pagination';
 
 const StockManagementTab = () => {
 	const { isAdmin, isAuthenticated, loading } = useAuth();
@@ -34,15 +35,19 @@ const StockManagementTab = () => {
 	const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
 	const [allRequestModalOpen, setAllRequestModalOpen] = useState(false);
 	const [stockDetailModalOpen, setStockDetailModalOpen] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
 
-	// All hooks must be called before any conditional returns
-	const { data, isLoading: stocksLoading } = useQuery<{ stocks: Stock[]; total: number }>({
-		queryKey: ['/api/stocks'],
-		enabled: isAuthenticated && isAdmin, // Only fetch if authorized
+	const itemsPerPage = 8;
+	const { data, isLoading: stocksLoading } = useQuery<{ stocks: Stock[]; totalPages: number }>({
+		queryKey: ['/api/stocks', currentPage, itemsPerPage],
+		queryFn: async () => {
+			const res = await fetch(`/api/stocks?page=${currentPage}&limit=${itemsPerPage}`);
+			if (!res.ok) throw new Error('Network response was not ok');
+			return res.json();
+		},
 	});
-
 	const stocks = data?.stocks ?? [];
-	const totalStocks = data?.total ?? 0;
+	const totalPages = data?.totalPages ?? 0;
 
 	const deleteMutation = useMutation({
 		mutationFn: async (id: string) => {
@@ -294,6 +299,45 @@ const StockManagementTab = () => {
 					</div>
 				</CardContent>
 			</Card>
+
+			{totalPages > 1 && (
+				<Pagination className='my-6'>
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevious
+								href='#'
+								onClick={(e) => {
+									e.preventDefault();
+									if (currentPage > 1) setCurrentPage(currentPage - 1);
+								}}
+							/>
+						</PaginationItem>
+						{Array.from({ length: totalPages }).map((_, i) => (
+							<PaginationItem key={i + 1}>
+								<PaginationLink
+									href='#'
+									isActive={currentPage === i + 1}
+									onClick={(e) => {
+										e.preventDefault();
+										setCurrentPage(i + 1);
+									}}
+								>
+									{i + 1}
+								</PaginationLink>
+							</PaginationItem>
+						))}
+						<PaginationItem>
+							<PaginationNext
+								href='#'
+								onClick={(e) => {
+									e.preventDefault();
+									if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+								}}
+							/>
+						</PaginationItem>
+					</PaginationContent>
+				</Pagination>
+			)}
 
 			<StockDetailModal
 				open={stockDetailModalOpen}
