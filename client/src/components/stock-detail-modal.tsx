@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Check, Clock, X } from "lucide-react";
 import type { Stock, StockHistory, StockRequest } from "@shared/schema";

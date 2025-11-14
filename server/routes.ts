@@ -142,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 	);
 
 	app.put(
-		'/api/stocks/:id',
+		'/api/admin/stocks/:id',
 		authenticateToken,
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {

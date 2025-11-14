@@ -1,23 +1,11 @@
-import { BarChart3, Plus, Trash2, History } from 'lucide-react';
+import { BarChart3, Plus, History, SquarePen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '../ui/alert-dialog';
 import { AddStockModal } from '../add-stock-modal';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stock } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
@@ -28,7 +16,6 @@ import { AllRequestModal } from '../all-request-modal';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../ui/pagination';
 
 const StockManagementTab = () => {
-	const { isAdmin, isAuthenticated, loading } = useAuth();
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
 	const [addStockModalOpen, setAddStockModalOpen] = useState(false);
@@ -49,38 +36,6 @@ const StockManagementTab = () => {
 	const stocks = data?.stocks ?? [];
 	const totalPages = data?.totalPages ?? 0;
 
-	const deleteMutation = useMutation({
-		mutationFn: async (id: string) => {
-			await apiRequest('DELETE', `/api/admin/stocks/${id}`);
-		},
-		onSuccess: () => {
-			toast({
-				title: 'Stock deleted',
-				description: 'Stock item has been deleted successfully.',
-			});
-			queryClient.invalidateQueries({ queryKey: ['/api/stocks'] });
-			queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
-		},
-		onError: (error) => {
-			if (isUnauthorizedError(error)) {
-				toast({
-					title: 'Unauthorized',
-					description: 'You are logged out. Logging in again...',
-					variant: 'destructive',
-				});
-				setTimeout(() => {
-					window.location.href = '/api/login';
-				}, 500);
-				return;
-			}
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to delete stock',
-				variant: 'destructive',
-			});
-		},
-	});
-
 	return (
 		<>
 			<div className='flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0'>
@@ -93,7 +48,7 @@ const StockManagementTab = () => {
 					</p>
 				</div>
 				<Button
-					onClick={() => setAddStockModalOpen(true)}
+					onClick={() => { setSelectedStock(undefined); setAddStockModalOpen(true)}}
 					data-testid='button-add-stock'
 					className='w-full sm:w-auto'
 				>
@@ -226,68 +181,31 @@ const StockManagementTab = () => {
 																side='top'
 																align='center'
 															>
-																View Product Details
+																Stock History
 															</TooltipContent>
 														</Tooltip>
 
 														<Tooltip>
-															<TooltipTrigger asChild>
-																<div>
-																	<AlertDialog>
-																		<AlertDialogTrigger asChild>
-																			<Button
-																				size='sm'
-																				variant='destructive'
-																				disabled={
-																					deleteMutation.isPending
-																				}
-																				data-testid={`button-delete-stock-${stock.id}`}
-																			>
-																				<Trash2 className='w-4 h-4' />
-																			</Button>
-																		</AlertDialogTrigger>
-																		<AlertDialogContent>
-																			<AlertDialogHeader>
-																				<AlertDialogTitle>
-																					Delete Stock
-																				</AlertDialogTitle>
-																				<AlertDialogDescription>
-																					Are you sure you
-																					want to delete{' '}
-																					<b>
-																						{stock.name}
-																					</b>
-																					? This action
-																					cannot be
-																					undone.
-																				</AlertDialogDescription>
-																			</AlertDialogHeader>
-																			<AlertDialogFooter>
-																				<AlertDialogCancel>
-																					Cancel
-																				</AlertDialogCancel>
-																				<AlertDialogAction
-																					onClick={() =>
-																						deleteMutation.mutate(
-																							stock.id
-																						)
-																					}
-																					disabled={
-																						deleteMutation.isPending
-																					}
-																				>
-																					Delete
-																				</AlertDialogAction>
-																			</AlertDialogFooter>
-																		</AlertDialogContent>
-																	</AlertDialog>
-																</div>
+															<TooltipTrigger>
+																<Button
+																	size='sm'
+																	variant='outline'
+																	onClick={() => {
+																		setSelectedStock(stock);
+																		setAddStockModalOpen(
+																			true
+																		);
+																	}}
+																	data-testid={`button-view-stock-${stock.id}`}
+																>
+																	<SquarePen className='w-4 h-4' />
+																</Button>
 															</TooltipTrigger>
 															<TooltipContent
 																side='top'
 																align='center'
 															>
-																Delete Product
+																Update stock
 															</TooltipContent>
 														</Tooltip>
 													</div>
@@ -351,7 +269,7 @@ const StockManagementTab = () => {
 				stock={selectedStock}
 			/>
 
-			<AddStockModal open={addStockModalOpen} onOpenChange={setAddStockModalOpen} />
+			<AddStockModal open={addStockModalOpen} onOpenChange={setAddStockModalOpen} stock={selectedStock} />
 		</>
 	);
 };
