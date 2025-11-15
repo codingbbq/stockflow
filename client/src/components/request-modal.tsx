@@ -66,7 +66,7 @@ export function RequestModal({ open, onOpenChange, stocks, selectedStock }: Requ
 			quantity: 0,
 			reason: '',
 		},
-		mode: 'onChange',
+		mode: 'onSubmit',
 	});
 
 	const mutation = useMutation({
@@ -197,7 +197,7 @@ export function RequestModal({ open, onOpenChange, stocks, selectedStock }: Requ
 							<Button
 								type='submit'
 								className='flex-1'
-								disabled={mutation.isPending || !form.formState.isValid}
+								disabled={mutation.isPending}
 								data-testid='button-submit-request'
 							>
 								{mutation.isPending ? 'Submitting...' : 'Submit Request'}
