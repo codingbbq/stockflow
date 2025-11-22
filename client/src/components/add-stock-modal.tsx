@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { insertStockSchema } from '@shared/schema';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -42,17 +41,6 @@ import {
 } from './ui/alert-dialog';
 import { Trash2 } from 'lucide-react';
 
-// Extended schema for update mode
-const updateStockSchema = insertStockSchema.extend({
-	adjustQuantity: z.number().optional(),
-	adjustComment: z.string().optional(),
-});
-
-type AddStockForm = z.infer<typeof insertStockSchema> & {
-	adjustQuantity?: number;
-	adjustComment?: string;
-};
-
 interface AddStockModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -62,9 +50,8 @@ interface AddStockModalProps {
 export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps) {
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
-
-	const form = useForm<AddStockForm>({
-		resolver: zodResolver(stock ? updateStockSchema : insertStockSchema),
+	const form = useForm<InsertStock>({
+		resolver: zodResolver(insertStockSchema),
 		defaultValues: {
 			name: '',
 			code: '',
@@ -73,8 +60,6 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 			imageFile: null,
 			quantity: 0,
 			category: '',
-			adjustQuantity: 0,
-			adjustComment: '',
 		},
 	});
 
@@ -88,8 +73,6 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 				imageFile: null,
 				quantity: stock.quantity,
 				category: stock.category ?? '',
-				adjustQuantity: 0,
-				adjustComment: '',
 			});
 		} else {
 			form.reset({
@@ -100,24 +83,17 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 				imageFile: null,
 				quantity: 0,
 				category: '',
-				adjustQuantity: 0,
-				adjustComment: '',
 			});
 		}
 	}, [stock, open]);
 
 	const mutation = useMutation({
-		mutationFn: async (data: AddStockForm & { id?: string }) => {
-			let payload = { ...data };
+		mutationFn: async (data: InsertStock & { id?: string }) => {
 			if (stock) {
-				// For update, send adjustQuantity and adjustComment if present
-				payload = {
-					...data,
-					adjustQuantity: data.adjustQuantity ?? 0,
-					adjustComment: data.adjustComment ?? '',
-				};
-				return await apiRequest('PUT', `/api/admin/stocks/${stock.id}`, payload);
+				// Update existing stock
+				return await apiRequest('PUT', `/api/admin/stocks/${stock.id}`, data);
 			} else {
+				// Add new stock
 				return await apiRequest('POST', '/api/admin/stocks', data);
 			}
 		},
@@ -153,7 +129,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 		},
 	});
 
-	const onSubmit = async (data: AddStockForm & { imageFile?: File | null }) => {
+	const onSubmit = async (data: InsertStock & { imageFile?: File | null }) => {
 		let imageUrl = '';
 
 		if (data.imageFile) {
@@ -168,6 +144,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 			}
 		}
 
+		// Prepare data for mutation
 		const submitData = { ...data, imageUrl };
 		delete submitData.imageFile;
 		mutation.mutate(submitData);
@@ -182,6 +159,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 				title: 'Stock deleted',
 				description: 'Stock item has been deleted successfully.',
 			});
+
 			queryClient.invalidateQueries({ queryKey: ['/api/stocks'] });
 			queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
 			onOpenChange(false);
@@ -212,6 +190,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 				className='w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto'
 				data-testid='modal-add-stock'
 			>
+				{/* If stock, then edit the existing stock */}
 				{stock ? (
 					<DialogHeader className='flex flex-row items-center space-x-4 space-y-0'>
 						<img
@@ -279,81 +258,28 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 									</FormItem>
 								)}
 							/>
-
-							{/* For new addition of products. */}
-							{!stock && (
-								<FormField
-									control={form.control}
-									name='quantity'
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Quantity</FormLabel>
-											<FormControl>
-												<Input
-													type='number'
-													min='0'
-													placeholder='0'
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															parseInt(e.target.value) || 0
-														)
-													}
-													data-testid='input-stock-quantity'
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							)}
-
-							{/* In case of edit of products, we need to show existing qty and then option to add or remove qty. */}
-							{stock && (
-								<div className='mb-4'>
-									<div>
-										<b>Current Quantity:</b> {stock.quantity}
-									</div>
-									<FormField
-										control={form.control}
-										name='adjustQuantity'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Adjust Quantity</FormLabel>
-												<FormControl>
-													<Input
-														type='number'
-														placeholder='e.g. 5 or -3'
-														{...field}
-														onChange={(e) =>
-															field.onChange(Number(e.target.value))
-														}
-														data-testid='input-adjust-quantity'
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<FormField
-										control={form.control}
-										name='adjustComment'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Comment for Adjustment</FormLabel>
-												<FormControl>
-													<Textarea
-														placeholder='Reason for adjustment'
-														{...field}
-														data-testid='input-adjust-comment'
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								</div>
-							)}
+							<FormField
+								control={form.control}
+								name='quantity'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Quantity</FormLabel>
+										<FormControl>
+											<Input
+												type='number'
+												min='0'
+												placeholder='0'
+												{...field}
+												onChange={(e) =>
+													field.onChange(parseInt(e.target.value) || 0)
+												}
+												data-testid='input-stock-quantity'
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
 
 						<FormField
