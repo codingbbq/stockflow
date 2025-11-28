@@ -203,24 +203,24 @@ export function NavigationHeader() {
 							<div className='pt-4 border-t border-border mt-4'>
 								{isAuthenticated ? (
 									<div className='space-y-3'>
-										<div className="px-3 py-2 bg-muted rounded-md">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">
-                          {user?.first_name && user?.last_name
-                            ? `${user.first_name} ${user.last_name}`
-                            : user?.first_name || 'User'}
-                        </span>
-                      </div>
-                      <span className="text-xs text-muted-foreground block truncate">
-                        {user?.email}
-                      </span>
-                      {isAdmin && (
-                        <span className="text-xs font-medium text-primary mt-1 block">
-                          Admin Account
-                        </span>
-                      )}
-                    </div>
+										<div className='px-3 py-2 bg-muted rounded-md'>
+											<div className='flex items-center space-x-2 mb-2'>
+												<User className='w-4 h-4 text-muted-foreground' />
+												<span className='text-sm font-medium text-foreground'>
+													{user?.first_name && user?.last_name
+														? `${user.first_name} ${user.last_name}`
+														: user?.first_name || 'User'}
+												</span>
+											</div>
+											<span className='text-xs text-muted-foreground block truncate'>
+												{user?.email}
+											</span>
+											{isAdmin && (
+												<span className='text-xs font-medium text-primary mt-1 block'>
+													Admin Account
+												</span>
+											)}
+										</div>
 										<Button
 											variant='outline'
 											onClick={handleLogout}
