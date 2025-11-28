@@ -35,6 +35,8 @@ export interface AuthenticatedRequest extends Request {
 	user?: {
 		id: string;
 		email?: string;
+		first_name?: string;
+		last_name?: string;
 		is_admin?: boolean;
 	};
 }
@@ -63,6 +65,8 @@ export const authenticateToken = async (
 		const decoded = jwt.verify(token, JWT_SECRET) as {
 			id: string;
 			email?: string;
+			first_name?: string;
+			last_name?: string;
 			is_admin?: boolean;
 		};
 
@@ -76,6 +80,8 @@ export const authenticateToken = async (
 		req.user = {
 			id: user.id,
 			email: user.email ?? undefined,
+			first_name: user.firstName ?? undefined,
+			last_name: user.lastName ?? undefined,
 			is_admin: user.isAdmin || false,
 		};
 

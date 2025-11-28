@@ -14,7 +14,7 @@ export function useAuth() {
 			const response = await fetch('/api/auth/me', {
 				credentials: 'include',
 			});
-
+			console.log(Response);
 			if (response.ok) {
 				const userData = await response.json();
 				setUser(userData.user);
