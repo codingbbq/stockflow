@@ -134,6 +134,9 @@ export function StockDetailModal({ open, onOpenChange, stock }: StockDetailModal
                         {(item as any).user && `${(item as any).user.firstName || (item as any).user.email} • `}
                         {Math.abs(item.quantity)} units • {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Unknown date'}
                       </p>
+                      <p className="text-xs text-muted-foreground italic mt-2">
+                        {item.notes}
+                      </p>
                     </div>
                   </div>
                 ))

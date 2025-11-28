@@ -96,7 +96,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			const total = Number(totalResult[0]?.count ?? 0);
 			const totalPages = Math.max(1, Math.ceil(total / limit));
 			res.json({ stocks, totalPages });
-
 		} catch (error) {
 			console.error('Error fetching stocks:', error);
 			res.status(500).json({ message: 'Failed to fetch stocks' });
@@ -134,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 				if (error instanceof z.ZodError) {
 					return res
 						.status(400)
-						.json({ message: 'Invalid stock data', errors: error.errors });
+						.json({ message: 'Invalid stock data', errors: error.issues });
 				}
 				res.status(500).json({ message: 'Failed to create stock' });
 			}
@@ -201,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 			if (error instanceof z.ZodError) {
 				return res
 					.status(400)
-					.json({ message: 'Invalid request data', errors: error.errors });
+					.json({ message: 'Invalid request data', errors: error.issues });
 			}
 			res.status(500).json({ message: 'Failed to create request' });
 		}
@@ -352,6 +351,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		}
 	);
 
+	// Stock history - authenticated users only
+	app.patch(
+		'/api/admin/stocks/:id/adjust-quantity',
+		authenticateToken,
+		requireAdmin,
+		async (req: AuthenticatedRequest, res) => {
+			try {
+				const { id } = req.params;
+				const { changeType, quantity, comment } = req.body;
+
+				// Validate input
+				if (!changeType || !['added', 'removed'].includes(changeType)) {
+					return res.status(400).json({ message: 'Invalid adjustment type' });
+				}
+
+				if (!quantity || quantity <= 0) {
+					return res.status(400).json({ message: 'Quantity must be greater than 0' });
+				}
+
+				if (!comment || comment.trim() === '') {
+					return res.status(400).json({ message: 'Comment is required' });
+				}
+
+				// Get current stock
+				const stock = await storage.getStockById(id);
+				if (!stock) {
+					return res.status(404).json({ message: 'Stock not found' });
+				}
+
+				// Calculate new quantity
+				const adjustmentAmount = changeType === 'added' ? quantity : -quantity;
+				const newQuantity = stock.quantity + adjustmentAmount;
+
+				// Prevent negative stock
+				if (newQuantity < 0) {
+					return res.status(400).json({
+						message: `Cannot remove ${quantity} items. Only ${stock.quantity} available in stock.`,
+					});
+				}
+
+				// Update stock quantity in stocks table
+				await storage.updateStock(id, { quantity: newQuantity });
+
+				// Insert record into stock_history
+				await storage.createStockHistory({
+					stockId: id,
+					changeType: changeType,
+					quantity: quantity,
+					userId: req.user?.id || null,
+					notes: comment,
+					requestId: null,
+				});
+
+				// Get updated stock
+				const updatedStock = await storage.getStockById(id);
+
+				return res.json({
+					message: 'Stock quantity adjusted successfully',
+					stock: updatedStock,
+				});
+			} catch (error) {
+				console.error('Error adjusting stock quantity:', error);
+				return res.status(500).json({
+					message: 'Failed to adjust stock quantity',
+					error: error instanceof Error ? error.message : 'Unknown error',
+				});
+			}
+		}
+	);
+
+	// Update Stock count and post it in Stock History table
 	// Stock history - authenticated users only
 	app.get(
 		'/api/stocks/:id/history',

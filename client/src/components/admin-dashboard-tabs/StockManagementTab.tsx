@@ -6,23 +6,29 @@ import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { AddStockModal } from '../add-stock-modal';
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Stock } from '@shared/schema';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { isUnauthorizedError } from '@/lib/authUtils';
 import { StockDetailModal } from '../stock-detail-modal';
 import { AllRequestModal } from '../all-request-modal';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../ui/pagination';
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious,
+} from '../ui/pagination';
+import { AdjustQuantityModal } from '../addjust-qty-modal';
 
 const StockManagementTab = () => {
-	const { toast } = useToast();
-	const queryClient = useQueryClient();
 	const [addStockModalOpen, setAddStockModalOpen] = useState(false);
 	const [selectedStock, setSelectedStock] = useState<Stock | undefined>();
 	const [allRequestModalOpen, setAllRequestModalOpen] = useState(false);
 	const [stockDetailModalOpen, setStockDetailModalOpen] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
+
+	// To adjust stock
+	const [adjustQuantityModalOpen, setAdjustQuantityModalOpen] = useState(false);
 
 	const itemsPerPage = 8;
 	const { data, isLoading: stocksLoading } = useQuery<{ stocks: Stock[]; totalPages: number }>({
@@ -48,7 +54,10 @@ const StockManagementTab = () => {
 					</p>
 				</div>
 				<Button
-					onClick={() => { setSelectedStock(undefined); setAddStockModalOpen(true)}}
+					onClick={() => {
+						setSelectedStock(undefined);
+						setAddStockModalOpen(true);
+					}}
 					data-testid='button-add-stock'
 					className='w-full sm:w-auto'
 				>
@@ -116,7 +125,15 @@ const StockManagementTab = () => {
 													{stock.code}
 												</td>
 												<td className='py-3 px-4 text-foreground'>
-													{stock.quantity}
+													<button
+														onClick={() => {
+															setSelectedStock(stock);
+															setAdjustQuantityModalOpen(true);
+														}}
+														className='hover:underline cursor-pointer'
+													>
+														{stock.quantity}
+													</button>
 												</td>
 												<td className='py-3 px-4'>
 													<Badge
@@ -192,9 +209,7 @@ const StockManagementTab = () => {
 																	variant='outline'
 																	onClick={() => {
 																		setSelectedStock(stock);
-																		setAddStockModalOpen(
-																			true
-																		);
+																		setAddStockModalOpen(true);
 																	}}
 																	data-testid={`button-view-stock-${stock.id}`}
 																>
@@ -269,7 +284,17 @@ const StockManagementTab = () => {
 				stock={selectedStock}
 			/>
 
-			<AddStockModal open={addStockModalOpen} onOpenChange={setAddStockModalOpen} stock={selectedStock} />
+			<AddStockModal
+				open={addStockModalOpen}
+				onOpenChange={setAddStockModalOpen}
+				stock={selectedStock}
+			/>
+
+			<AdjustQuantityModal
+				open={adjustQuantityModalOpen}
+				onOpenChange={setAdjustQuantityModalOpen}
+				stock={selectedStock}
+			/>
 		</>
 	);
 };

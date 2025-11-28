@@ -273,6 +273,9 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 												onChange={(e) =>
 													field.onChange(parseInt(e.target.value) || 0)
 												}
+												disabled={!!stock}
+												readOnly={!!stock}
+												className={stock ? 'bg-muted cursor-not-allowed' : ''}
 												data-testid='input-stock-quantity'
 											/>
 										</FormControl>
