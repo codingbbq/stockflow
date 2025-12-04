@@ -29,6 +29,7 @@ export function StockCard({ stock, onRequestClick, isAuthenticated = false, onLo
         alt={stock.name} 
         className="w-full h-48 object-cover rounded-t-lg"
         data-testid={`img-stock-${stock.id}`}
+        crossOrigin="anonymous"
       />
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
