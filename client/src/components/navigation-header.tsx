@@ -7,19 +7,19 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 export function NavigationHeader() {
 	const { isAdmin, isAuthenticated, user, signOut } = useAuth();
-	const [location] = useLocation();
+	const [location, navigate] = useLocation();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	const handleLogout = async () => {
 		const { error } = await signOut();
 		setMobileMenuOpen(false);
 		if (!error) {
-			window.location.href = '/login';
+			navigate('/login');
 		}
 	};
 
 	const handleLogin = () => {
-		window.location.href = '/login';
+		navigate('/login');
 	};
 
 	return (
