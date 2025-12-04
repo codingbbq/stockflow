@@ -146,7 +146,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 		requireAdmin,
 		async (req: AuthenticatedRequest, res) => {
 			try {
-				const stockData = insertStockSchema.partial().parse(req.body);
+
+				// In case the imageUrl is empty, do not update it in the database. Ignore it. 
+				// This means that there is already imageUrl and user does not want to update the image.
+				const payload = { ...req.body };
+
+				if ('imageUrl' in payload) {
+					const v = payload.imageUrl;
+					if (v === undefined || v === null || (typeof v === 'string' && v.trim() === '')) {
+						delete payload.imageUrl;
+					}
+				}
+
+				const stockData = insertStockSchema.partial().parse(payload);
 				const stock = await storage.updateStock(req.params.id, stockData);
 				res.json(stock);
 			} catch (error) {
