@@ -66,7 +66,8 @@ export function RequestModal({ open, onOpenChange, stocks, selectedStock }: Requ
 			quantity: 0,
 			reason: '',
 		},
-		mode: 'onSubmit',
+		mode: 'onTouched',
+		reValidateMode: 'onChange'
 	});
 
 	const mutation = useMutation({
