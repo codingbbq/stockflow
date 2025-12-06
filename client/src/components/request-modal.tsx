@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { isUnauthorizedError } from '@/lib/authUtils';
 import type { Stock } from '@shared/schema';
+import { useLocation } from 'wouter';
 
 const requestSchema = (stocks: Stock[]) =>
 	z
@@ -58,6 +59,7 @@ interface RequestModalProps {
 export function RequestModal({ open, onOpenChange, stocks, selectedStock }: RequestModalProps) {
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
+	const [location, navigate] = useLocation();
 
 	const form = useForm<RequestFormData>({
 		resolver: zodResolver(requestSchema(stocks)),
@@ -91,7 +93,7 @@ export function RequestModal({ open, onOpenChange, stocks, selectedStock }: Requ
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}

@@ -11,12 +11,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { isUnauthorizedError } from '@/lib/authUtils';
+import { useLocation } from 'wouter';
 
 const UsersTab = () => {
 	const { isAdmin, isAuthenticated, loading } = useAuth();
 	const [addUserModalOpen, setAddUserModalOpen] = useState(false);
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
+	const [location, navigate] = useLocation();
 	const { data: users, isLoading: usersLoading } = useQuery<SafeUser[]>({
 		queryKey: ['/api/admin/users'],
 		enabled: isAuthenticated && isAdmin, // Only fetch if authorized
@@ -40,7 +42,7 @@ const UsersTab = () => {
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/login';
+					navigate('/login');
 				}, 500);
 				return;
 			}

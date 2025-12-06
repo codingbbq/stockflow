@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
+  const [location, navigate] = useLocation();
 
   const form = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
@@ -58,7 +59,7 @@ export default function Signup() {
         });
         // Redirect to login page
         setTimeout(() => {
-          window.location.href = "/login";
+          navigate("/login");
         }, 2000);
       }
     } catch (error) {

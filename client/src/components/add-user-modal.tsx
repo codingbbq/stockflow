@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { isUnauthorizedError } from '@/lib/authUtils';
+import { useLocation } from 'wouter';
 
 interface AddUserModalProps {
 	open: boolean;
@@ -26,6 +27,7 @@ interface AddUserModalProps {
 export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
+	const [location, navigate] = useLocation();
 
 	const form = useForm<InsertUser>({
 		resolver: zodResolver(insertUserSchema),
@@ -59,7 +61,7 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}

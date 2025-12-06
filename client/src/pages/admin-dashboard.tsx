@@ -8,14 +8,16 @@ import StockManagementTab from "@/components/admin-dashboard-tabs/StockManagemen
 import UsersTab from "@/components/admin-dashboard-tabs/UsersTab";
 import RequestsTab from "@/components/admin-dashboard-tabs/RequestsTab";
 import OverviewTab from "@/components/admin-dashboard-tabs/OverviewTab";
+import { useLocation } from "wouter";
 
 export default function AdminDashboard() {
   const { isAdmin, isAuthenticated, loading } = useAuth();
+  const [location, navigate] = useLocation();
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
     if (!loading && (!isAuthenticated || !isAdmin)) {
-      window.location.href = "/login";
+      navigate("/login");
     }
   }, [isAuthenticated, loading]);
 
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
           <p className="text-muted-foreground mb-4">You don't have permission to access this page.</p>
-          <Button onClick={() => window.location.href = "/"}>
+          <Button onClick={() => navigate("/")}>
             Go to Homepage
           </Button>
         </div>

@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { isUnauthorizedError } from '@/lib/authUtils';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from "wouter";
 
 const RequestsTab = () => {
 	const { isAdmin, isAuthenticated, loading } = useAuth();
@@ -24,6 +25,7 @@ const RequestsTab = () => {
 	const queryClient = useQueryClient();
 	const [requestFilter, setRequestFilter] = useState('all');
 	const [searchTerm, setSearchTerm] = useState('');
+	const [location, navigate] = useLocation();
 
 	const { data: requests, isLoading: requestsLoading } = useQuery<any[]>({
 		queryKey: ['/api/admin/requests'],
@@ -51,7 +53,7 @@ const RequestsTab = () => {
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}
@@ -82,7 +84,7 @@ const RequestsTab = () => {
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}

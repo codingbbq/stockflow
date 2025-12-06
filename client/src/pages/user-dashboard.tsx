@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClipboardList, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { StockRequestWithStock } from '@shared/types/StockRequestWithStock';
+import { useLocation } from 'wouter';
 
 export default function UserDashboard() {
 	const { user, isAuthenticated, loading } = useAuth();
+	const [location, navigate] = useLocation();
 
 	const { data: requests, isLoading } = useQuery<StockRequestWithStock[]>({
 		queryKey: ['/api/requests/user'],
@@ -17,7 +19,7 @@ export default function UserDashboard() {
 
 	// Redirect if not authenticated
 	if (!loading && !isAuthenticated) {
-		window.location.href = '/login';
+		navigate('/login');
 		return null;
 	}
 

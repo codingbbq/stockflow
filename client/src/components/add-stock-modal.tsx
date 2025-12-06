@@ -40,6 +40,7 @@ import {
 	AlertDialogTrigger,
 } from './ui/alert-dialog';
 import { Trash2 } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 interface AddStockModalProps {
 	open: boolean;
@@ -50,6 +51,7 @@ interface AddStockModalProps {
 export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps) {
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
+	const [location, navigate] = useLocation();
 	const form = useForm<InsertStock>({
 		resolver: zodResolver(insertStockSchema),
 		defaultValues: {
@@ -117,7 +119,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}
@@ -172,7 +174,7 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 					variant: 'destructive',
 				});
 				setTimeout(() => {
-					window.location.href = '/api/login';
+					navigate('/api/login');
 				}, 500);
 				return;
 			}

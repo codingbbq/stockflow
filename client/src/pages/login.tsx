@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, Loader2, Box } from "lucide-react";
+
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,6 +23,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
+  const [location, navigate] = useLocation();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -47,7 +49,7 @@ export default function Login() {
           description: "You have been successfully logged in.",
         });
         // Redirect will be handled by the auth state change
-        window.location.href = "/";
+        navigate("/");
       }
     } catch (error) {
       toast({
