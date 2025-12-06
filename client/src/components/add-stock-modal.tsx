@@ -303,11 +303,11 @@ export function AddStockModal({ open, onOpenChange, stock }: AddStockModalProps)
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											<SelectItem value='Electronics'>Electronics</SelectItem>
-											<SelectItem value='Office Supplies'>
-												Office Supplies
+											<SelectItem value='creatives'>Creatives</SelectItem>
+											<SelectItem value='wedding'>
+												Wedding Collection
 											</SelectItem>
-											<SelectItem value='Hardware'>Hardware</SelectItem>
+											<SelectItem value='trending'>Trending</SelectItem>
 											<SelectItem value='Other'>Other</SelectItem>
 										</SelectContent>
 									</Select>
