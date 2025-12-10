@@ -175,13 +175,13 @@ export default function UserDashboard() {
 											<th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
 												Item
 											</th>
-                      <th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
+											<th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
 												Qty
 											</th>
 											<th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
 												Reason
 											</th>
-                      <th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
+											<th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
 												Date
 											</th>
 											<th className='text-left py-2 px-2 sm:py-3 sm:px-4 font-medium text-foreground text-xs sm:text-sm'>
@@ -198,25 +198,28 @@ export default function UserDashboard() {
 												key={request.id}
 												data-testid={`row-user-request-${request.id}`}
 											>
-												<td className='py-2 px-2 sm:py-4 sm:px-4'>
-													<img
-														src={
-															(request as any).stock?.imageUrl ||
-															'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100'
-														}
-														alt={(request as any).stock?.name}
-														className='w-10 h-10 object-cover rounded'
-													/>
-													<div>
-														<p className='font-medium text-foreground'>
-															{(request as any).stock?.name}
-														</p>
-														<p className='text-xs text-muted-foreground'>
-															{(request as any).stock?.code}
-														</p>
+												<td className='py-4 px-4'>
+													<div className='flex items-center space-x-3'>
+														<img
+															src={
+																(request as any).stock?.imageUrl ||
+																'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100'
+															}
+															alt={(request as any).stock?.name}
+															className='w-10 h-10 object-cover rounded'
+														/>
+														<div>
+															<p className='font-medium text-foreground'>
+																{(request as any).stock?.name}
+															</p>
+															<p className='text-xs text-muted-foreground'>
+																{(request as any).stock?.code}
+															</p>
+														</div>
 													</div>
 												</td>
-                        <td className='py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-foreground'>
+
+												<td className='py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-foreground'>
 													{request.quantity}
 												</td>
 												<td className='py-2 px-2 sm:py-4 sm:px-4 text-xs sm:text-sm text-foreground'>
